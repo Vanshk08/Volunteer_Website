@@ -1,5 +1,5 @@
 // Global variables and functions - Define early so onclick handlers can find them
-let supabaseClient = null;
+const API_BASE_URL = 'http://localhost:3001/api';
 
 function openVolunteerForm() {
     console.log('Opening form');
@@ -79,16 +79,7 @@ function closeLoginForm() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize Supabase after library is loaded
-    if (window.supabase) {
-        const { createClient } = window.supabase;
-        const url = 'https://vdrfkocnwtdhetlihzzj.supabase.co';
-        const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZkcmZrb2Nud3RkaGV0bGloenpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg0MDgwMzgsImV4cCI6MjA5Mzk4NDAzOH0.KuBQcf7gsc9Wy2dLGXNaudkI0-pOb_wW5PtK_4SmkgQ';
-        supabaseClient = createClient(url, key);
-        console.log('✅ Supabase client initialized');
-    } else {
-        console.warn('Supabase library not available');
-    }
+    console.log('✅ Frontend initialized. Backend API base URL:', API_BASE_URL);
     
     // Check if user already has a profile
     if (localStorage.getItem('volunteerProfile')) {
@@ -119,66 +110,38 @@ document.addEventListener('DOMContentLoaded', function() {
             if (successMessage) successMessage.classList.add('d-none');
             if (errorMessage) errorMessage.classList.add('d-none');
             
-            // Get form data
-            const formData = {
-                full_name: document.getElementById('fullName').value,
-                age: parseInt(document.getElementById('age').value),
-                email: document.getElementById('email').value,
-                contact: document.getElementById('phone').value,
-                'past experience': document.getElementById('experience').value,
-                description: document.getElementById('description').value,
-                photo_url: null,
-                submitted_at: new Date().toISOString()
-            };
-            
             try {
                 if (submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.textContent = 'Submitting...';
                 }
                 
-                // Handle photo upload if Supabase is configured
-                const photoFile = document.getElementById('photoUpload').files[0];
-                if (photoFile && supabaseClient) {
-                    // Upload photo to Supabase Storage
-                    const fileName = `volunteers/${Date.now()}_${photoFile.name}`;
-                    console.log('Uploading photo with filename:', fileName);
-                    
-                    const { data, error: uploadError } = await supabaseClient.storage
-                        .from('volunteer_photos')
-                        .upload(fileName, photoFile);
-                    
-                    if (uploadError) throw new Error(`Photo upload failed: ${uploadError.message}`);
-                    
-                    console.log('✅ Photo uploaded successfully');
-                    
-                    // Get the public URL for the uploaded file
-                    const { data: publicData } = supabaseClient.storage
-                        .from('volunteer_photos')
-                        .getPublicUrl(fileName);
-                    
-                    console.log('Public URL data:', publicData);
-                    formData.photo_url = publicData.publicUrl;
-                    console.log('Photo URL set to:', formData.photo_url);
-                }
+                // Prepare FormData for multipart/form-data submission
+                const formDataToSend = new FormData(form);
+                formDataToSend.set('fullName', document.getElementById('fullName').value);
+                formDataToSend.set('age', document.getElementById('age').value);
+                formDataToSend.set('email', document.getElementById('email').value);
+                formDataToSend.set('phone', document.getElementById('phone').value);
+                formDataToSend.set('experience', document.getElementById('experience').value);
+                formDataToSend.set('description', document.getElementById('description').value);
                 
-                // Save volunteer data to Supabase
-                if (supabaseClient) {
-                    const { data, error } = await supabaseClient
-                        .from('Volunteers')
-                        .insert([formData]);
-                    
-                    if (error) throw new Error(error.message);
-                } else {
-                    // If Supabase not configured, log data to console
-                    console.log('Volunteer data (not saved - Supabase not configured):', formData);
+                // Send to backend API
+                const response = await fetch(`${API_BASE_URL}/volunteers/signup`, {
+                    method: 'POST',
+                    body: formDataToSend
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Failed to submit form');
                 }
                 
                 // Show success message
                 if (successMessage) successMessage.classList.remove('d-none');
                 
                 // Store profile data in localStorage
-                localStorage.setItem('volunteerProfile', JSON.stringify(formData));
+                localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
                 
                 // Update button to Profile
                 updateSignupButton();
@@ -228,31 +191,32 @@ document.addEventListener('DOMContentLoaded', function() {
                     loginSubmitBtn.textContent = 'Logging in...';
                 }
                 
-                // Query Supabase for the volunteer
-                if (supabaseClient) {
-                    const { data, error } = await supabaseClient
-                        .from('Volunteers')
-                        .select('*')
-                        .eq('email', email)
-                        .single();
-                    
-                    if (error || !data) {
-                        throw new Error('No volunteer found with this email address.');
-                    }
-                    
-                    // Store the profile data in localStorage
-                    localStorage.setItem('volunteerProfile', JSON.stringify(data));
-                    
-                    // Show success message
-                    if (loginSuccessMessage) loginSuccessMessage.classList.remove('d-none');
-                    
-                    // Redirect to profile page after 1.5 seconds
-                    setTimeout(() => {
-                        window.location.href = 'profile.html';
-                    }, 1500);
-                } else {
-                    throw new Error('Supabase not configured.');
+                // Call backend API to login
+                const response = await fetch(`${API_BASE_URL}/volunteers/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+                
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Login failed');
                 }
+                
+                // Store the profile data in localStorage
+                localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
+                
+                // Show success message
+                if (loginSuccessMessage) loginSuccessMessage.classList.remove('d-none');
+                
+                // Redirect to profile page after 1.5 seconds
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 1500);
+                
             } catch (error) {
                 console.error('Login error:', error);
                 if (loginErrorMessage) {
