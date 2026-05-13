@@ -1,16 +1,13 @@
 // App Page JavaScript - Tab Management & Events Loading
 
 const API_BASE_URL = 'http://localhost:3001/api';
-window.appJSLoaded = true; // Test flag to verify app.js is loading
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ App Page Initialized');
     
     // Check if user is logged in
     const userProfile = localStorage.getItem('volunteerProfile');
     if (!userProfile) {
-        console.log('No user profile found - showing signup modal');
         // Show signup modal for new users
         setTimeout(() => {
             openVolunteerForm();
@@ -24,8 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Switch between tabs
 function switchTab(tabName) {
-    console.log('Switching to tab:', tabName);
-    
     // Hide all tabs
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => tab.classList.remove('active'));
@@ -56,8 +51,6 @@ function switchTab(tabName) {
 
 // Load and display events
 function loadEvents() {
-    console.log('Loading events...');
-    
     const eventsGrid = document.getElementById('eventsGrid');
     if (!eventsGrid) return;
     
@@ -147,8 +140,6 @@ function loadEvents() {
         const eventCard = createEventCard(event);
         eventsGrid.appendChild(eventCard);
     });
-    
-    console.log('Events loaded:', filteredEvents.length);
 }
 
 // Create event card element
@@ -194,8 +185,6 @@ function createEventCard(event) {
 
 // Filter events by category
 function filterEvents(category) {
-    console.log('Filtering by category:', category);
-    
     // Update active filter button
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -219,8 +208,6 @@ function filterEvents(category) {
 
 // Apply for an event
 function applyForEvent(eventId, eventTitle) {
-    console.log('Applying for event:', eventId, eventTitle);
-    
     const userProfile = localStorage.getItem('volunteerProfile');
     if (!userProfile) {
         alert('Please sign up first to apply for events.');
@@ -230,19 +217,10 @@ function applyForEvent(eventId, eventTitle) {
     
     // Mock API call
     alert(`Successfully applied for "${eventTitle}"! You will receive confirmation soon.`);
-    
-    // In production, send to backend:
-    // fetch(`${API_BASE_URL}/events/${eventId}/apply`, {
-    //     method: 'POST',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify({ volunteerId: userProfile.id })
-    // });
 }
 
 // Load and display profile/dashboard
 function loadDashboard() {
-    console.log('Loading dashboard...');
-    
     const dashboardContent = document.getElementById('dashboardContent');
     const noDashboardContent = document.getElementById('noDashboardContent');
     
@@ -347,8 +325,6 @@ function loadDashboard() {
         
         dashboardContent.style.display = 'block';
         if (noDashboardContent) noDashboardContent.style.display = 'none';
-        
-        console.log('Dashboard loaded for user:', profile.fullName);
     } catch (error) {
         console.error('Error loading dashboard:', error);
         dashboardContent.style.display = 'none';
@@ -358,8 +334,6 @@ function loadDashboard() {
 
 // Load profile data (for profile display)
 function loadProfile() {
-    console.log('Loading user profile...');
-    
     try {
         const userProfile = localStorage.getItem('volunteerProfile');
         const navSignupBtn = document.getElementById('navSignupBtn');
@@ -367,7 +341,6 @@ function loadProfile() {
         
         if (userProfile) {
             const profile = JSON.parse(userProfile);
-            console.log('User logged in:', profile.fullName);
             
             // Update navbar - hide signup, show logout
             if (navSignupBtn) navSignupBtn.classList.add('d-none');
@@ -384,18 +357,14 @@ function loadProfile() {
 
 // Logout function
 function logout() {
-    console.log('Logging out...');
-    
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('volunteerProfile');
-        console.log('Profile cleared, redirecting to home...');
         window.location.href = 'index.html';
     }
 }
 
-// Modal functions for signup/login (from scripts.js)
+// Modal functions for signup/login
 function openVolunteerForm() {
-    console.log('Opening signup form');
     const modal = document.getElementById('volunteerModal');
     if (modal) {
         modal.classList.add('active');
@@ -404,7 +373,6 @@ function openVolunteerForm() {
 }
 
 function closeVolunteerForm() {
-    console.log('Closing signup form');
     const modal = document.getElementById('volunteerModal');
     if (modal) {
         modal.classList.remove('active');
@@ -419,8 +387,6 @@ function closeVolunteerForm() {
 }
 
 function openLoginForm() {
-    window.loginFormOpened = true;
-    console.log('Opening login form');
     const modal = document.getElementById('loginModal');
     if (modal) {
         modal.classList.add('active');
@@ -430,7 +396,6 @@ function openLoginForm() {
 window.openLoginForm = openLoginForm;
 
 function closeLoginForm() {
-    console.log('Closing login form');
     const modal = document.getElementById('loginModal');
     if (modal) {
         modal.classList.remove('active');
@@ -515,7 +480,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         return;
                     }
                 } catch (error) {
-                    console.error('Error checking email:', error);
+                    // Email check failed, proceed with signup
                 }
                 
                 // Prepare FormData for API

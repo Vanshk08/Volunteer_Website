@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
-const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -24,8 +23,6 @@ const supabaseKey = process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
     console.error('❌ Missing Supabase credentials in .env file');
-} else {
-    console.log('✅ Supabase configured');
 }
 
 const supabase = createClient(supabaseUrl, supabaseKey);
@@ -58,7 +55,6 @@ app.post('/api/volunteers/signup', upload.single('photoUpload'), async (req, res
         if (req.file) {
             try {
                 const fileName = `volunteers/${Date.now()}_${req.file.originalname}`;
-                console.log('Uploading photo with filename:', fileName);
 
                 const { data, error: uploadError } = await supabase.storage
                     .from('volunteer_photos')
@@ -68,15 +64,12 @@ app.post('/api/volunteers/signup', upload.single('photoUpload'), async (req, res
 
                 if (uploadError) throw new Error(`Photo upload failed: ${uploadError.message}`);
 
-                console.log('✅ Photo uploaded successfully');
-
                 // Get the public URL
                 const { data: publicData } = supabase.storage
                     .from('volunteer_photos')
                     .getPublicUrl(fileName);
 
                 photoUrl = publicData.publicUrl;
-                console.log('Photo URL:', photoUrl);
             } catch (error) {
                 console.error('Photo upload error:', error);
                 // Continue without photo if upload fails
@@ -161,9 +154,5 @@ app.post('/api/volunteers/login', async (req, res) => {
 
 // Start server
 app.listen(PORT, () => {
-    console.log(`🚀 Backend server running on http://localhost:${PORT}`);
-    console.log(`📝 API endpoints:`);
-    console.log(`  - POST http://localhost:${PORT}/api/volunteers/signup`);
-    console.log(`  - POST http://localhost:${PORT}/api/volunteers/login`);
-    console.log(`  - GET  http://localhost:${PORT}/api/health`);
+    console.log(`Server running on http://localhost:${PORT}`);
 });
