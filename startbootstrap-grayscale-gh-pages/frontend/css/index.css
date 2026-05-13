@@ -169,3 +169,299 @@
         max-height: 95vh;
     }
 }
+
+/* ===== ENHANCED LANDING PAGE STYLES ===== */
+
+/* Navigation Styling */
+#mainNav {
+    background: rgba(0, 0, 0, 0.85) !important;
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+#mainNav.scrolled {
+    background: rgba(0, 0, 0, 0.95) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+#mainNav .navbar-brand {
+    font-weight: 700;
+    font-family: "Varela Round", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #64a19d !important;
+    transition: all 0.3s ease;
+}
+
+#mainNav .navbar-brand:hover {
+    color: #50817e !important;
+    text-shadow: 0 0 10px rgba(100, 161, 157, 0.3);
+}
+
+#mainNav .nav-link {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+#mainNav .nav-link:hover {
+    color: #64a19d !important;
+    transform: translateY(-2px);
+}
+
+/* Masthead Improvements */
+.masthead {
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 100%), url('https://wallpapercave.com/wp/wp4035975.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    padding: 8rem 0 4rem;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.masthead h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    margin-bottom: 1rem;
+    animation: slideInDown 0.8s ease-out;
+}
+
+.masthead h2 {
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+    animation: slideInUp 0.8s ease-out 0.2s both;
+}
+
+.masthead .btn {
+    animation: slideInUp 0.8s ease-out 0.4s both;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .masthead {
+        padding: 6rem 0 3rem;
+        min-height: auto;
+    }
+    
+    .masthead h1 {
+        font-size: 2rem;
+    }
+    
+    .masthead h2 {
+        font-size: 1.1rem;
+    }
+}
+
+/* Section Improvements */
+section {
+    scroll-behavior: smooth;
+}
+
+.about-section,
+.projects-section,
+.signup-section,
+.contact-section {
+    padding: 5rem 0;
+}
+
+.about-section {
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.85)), url('https://d26oc3sg82pgk3.cloudfront.net/files/media/edit/image/57208/article_full%402x.jpg');
+    background-size: cover;
+    background-position: center;
+}
+
+.projects-section {
+    background: #f8f9fa;
+}
+
+.signup-section {
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.95) 0%, rgba(100, 161, 157, 0.05) 100%);
+    border-top: 1px solid rgba(100, 161, 157, 0.2);
+}
+
+.contact-section {
+    background: #000;
+    padding-bottom: 0;
+}
+
+/* Section Headings */
+section h2 {
+    font-weight: 700;
+    margin-bottom: 3rem;
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+.about-section h2,
+.signup-section h2 {
+    color: rgba(255, 255, 255, 0.95);
+    letter-spacing: 0.05em;
+}
+
+.projects-section h2 {
+    color: #000;
+}
+
+/* Card Shadows & Transitions */
+.step-card,
+.event-card,
+.project,
+.card {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+.step-card:hover,
+.event-card:hover,
+.project:hover,
+.card:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Button Enhancements */
+.btn {
+    transition: all 0.3s ease;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    padding: 0.75rem 2rem;
+    border-radius: 5px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #64a19d, #50817e);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 12px rgba(100, 161, 157, 0.3);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #50817e, #3d6360);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(100, 161, 157, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(100, 161, 157, 0.3);
+}
+
+.btn-lg {
+    padding: 1rem 2.5rem;
+    font-size: 1.1rem;
+}
+
+/* Text Utilities */
+.text-primary {
+    color: #64a19d !important;
+}
+
+.text-white {
+    color: white !important;
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.text-black-50 {
+    color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Spacing Utilities */
+.mb-5 {
+    margin-bottom: 3rem !important;
+}
+
+.mt-4 {
+    margin-top: 1.5rem !important;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+    section {
+        padding: 3rem 0;
+    }
+    
+    .about-section h2,
+    .projects-section h2,
+    .signup-section h2 {
+        font-size: 1.8rem;
+    }
+    
+    .step-card {
+        padding: 20px 15px;
+    }
+    
+    .btn {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.85rem;
+    }
+    
+    .btn-lg {
+        padding: 0.8rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+/* Footer Improvements */
+.footer {
+    padding: 2rem 0;
+    border-top: 1px solid rgba(100, 161, 157, 0.1);
+}
+
+.footer a {
+    color: #64a19d;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.footer a:hover {
+    color: #50817e;
+    text-decoration: underline;
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Focus Styles for Accessibility */
+a:focus,
+button:focus {
+    outline: 2px solid #64a19d;
+    outline-offset: 2px;
+}
+
+.btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(100, 161, 157, 0.3);
+}

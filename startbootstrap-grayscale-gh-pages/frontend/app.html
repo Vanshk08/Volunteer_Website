@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="HiredIn - Event Hub Platform" />
+        <meta name="author" content="" />
+        <title>HiredIn - Event Hub</title>
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Font Awesome icons (free version)-->
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
+        <!-- Google fonts-->
+        <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+        <link href="css/app.css" rel="stylesheet" />
+    </head>
+    <body id="page-top" class="app-page">
+        <!-- Navigation-->
+        <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-navbar" id="appNav">
+            <div class="container px-4 px-lg-5">
+                <a class="navbar-brand" href="index.html">
+                    <i class="fas fa-arrow-left"></i> HiredIn
+                </a>
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+                    Menu
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarResponsive">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <button class="nav-link" onclick="switchTab('events')">
+                                <i class="fas fa-calendar-alt"></i> Events
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" onclick="switchTab('dashboard')">
+                                <i class="fas fa-user-circle"></i> Dashboard
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" onclick="switchTab('chat')">
+                                <i class="fas fa-comments"></i> Chat
+                            </button>
+                        </li>
+                        <li class="nav-item" id="navSignupBtn">
+                            <button class="nav-link" onclick="openVolunteerForm()">
+                                <i class="fas fa-user-plus"></i> Signup
+                            </button>
+                        </li>
+                        <li class="nav-item d-none" id="navLogoutBtn">
+                            <button class="nav-link" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Tab Navigation -->
+        <div class="app-container">
+            <div class="tabs-header">
+                <div class="container px-4 px-lg-5">
+                    <div class="tabs-navigation">
+                        <button class="tab-btn active" onclick="switchTab('events')" data-tab="events">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>Events</span>
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('dashboard')" data-tab="dashboard">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Volunteer Dashboard</span>
+                        </button>
+                        <button class="tab-btn" onclick="switchTab('chat')" data-tab="chat">
+                            <i class="fas fa-comments"></i>
+                            <span>Chat</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tabs-content">
+                <!-- Events Tab -->
+                <div id="events-tab" class="tab-content active">
+                    <div class="events-header">
+                        <div class="container px-4 px-lg-5">
+                            <h1>Upcoming Events</h1>
+                            <p>Browse and apply for volunteer opportunities</p>
+                        </div>
+                    </div>
+
+                    <div class="events-container">
+                        <div class="container px-4 px-lg-5">
+                            <div class="filter-section">
+                                <h3 class="text-white mb-4">Filter Events</h3>
+                                <div class="filter-buttons">
+                                    <button class="filter-btn active" onclick="filterEvents('all')">All Events</button>
+                                    <button class="filter-btn" onclick="filterEvents('music')">Music</button>
+                                    <button class="filter-btn" onclick="filterEvents('tech')">Technology</button>
+                                    <button class="filter-btn" onclick="filterEvents('sports')">Sports</button>
+                                </div>
+                            </div>
+
+                            <div class="events-grid" id="eventsGrid">
+                                <!-- Events will be loaded here by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Tab -->
+                <div id="dashboard-tab" class="tab-content">
+                    <div class="dashboard-container">
+                        <div class="container px-4 px-lg-5">
+                            <div class="dashboard-header">
+                                <h1>Volunteer Dashboard</h1>
+                                <p>Manage your profile and applications</p>
+                            </div>
+
+                            <div id="dashboardContent">
+                                <!-- Profile info will be loaded here -->
+                            </div>
+
+                            <div id="noDashboardContent" style="display:none;">
+                                <div class="no-profile">
+                                    <h2><i class="fas fa-user-circle"></i> No Profile Found</h2>
+                                    <p>Please sign up first to view your dashboard.</p>
+                                    <p class="mt-4">
+                                        <button class="btn btn-primary btn-lg" onclick="openVolunteerForm()">
+                                            <i class="fas fa-plus"></i> Create Profile
+                                        </button>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Tab -->
+                <div id="chat-tab" class="tab-content">
+                    <div class="chat-container">
+                        <div class="container px-4 px-lg-5">
+                            <div class="coming-soon">
+                                <div class="coming-soon-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <h2>Chat Coming Soon</h2>
+                                <p>We're building a real-time chat feature to connect volunteers with event organizers.</p>
+                                <p class="text-muted mt-4">This feature will be available in the next update.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer-->
+        <footer class="footer bg-black small text-center text-white-50">
+            <div class="container px-4 px-lg-5">Copyright &copy; HiredIn Event Hub 2024</div>
+        </footer>
+
+        <!-- Volunteer Signup Modal (from original) -->
+        <div id="volunteerModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeVolunteerForm()">&times;</span>
+                <h2>Become a Volunteer</h2>
+                <form id="volunteerForm">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" />
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" name="age" />
+                    </div>
+                    <div class="form-group">
+                        <label for="experience">Past Experience</label>
+                        <textarea id="experience" name="experience" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">About You</label>
+                        <textarea id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="profilePic">Profile Picture</label>
+                        <input type="file" id="profilePic" name="profilePic" accept="image/*" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit Application</button>
+                </form>
+                <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(100, 161, 157, 0.2);">
+                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 10px;">Already registered?</p>
+                    <button id="goToLoginBtn" class="btn" style="background: transparent; border: 2px solid #64a19d; color: #64a19d; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                        <i class="fas fa-sign-in-alt"></i> Login Here
+                    </button>
+                </div>
+                <div id="successMessage" class="message success d-none">
+                    Signup successful! You can now browse events.
+                </div>
+                <div id="errorMessage" class="message error d-none">
+                    An error occurred. Please try again.
+                </div>
+            </div>
+        </div>
+
+        <!-- Login Modal (from original) -->
+        <div id="loginModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeLoginForm()">&times;</span>
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email Address</label>
+                        <input type="email" id="loginEmail" name="loginEmail" placeholder="Enter your registered email" required />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <div id="loginSuccessMessage" class="message success d-none">
+                    Login successful!
+                </div>
+                <div id="loginErrorMessage" class="message error d-none">
+                    Login failed. Please try again.
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+        <script src="js/app.js"></script>
+    </body>
+</html>

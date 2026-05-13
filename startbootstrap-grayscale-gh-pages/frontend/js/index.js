@@ -86,12 +86,40 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSignupButton();
     }
     
-    // Set up modal click outside handler
+    // Set up modal click outside handler for volunteer form
     const modal = document.getElementById('volunteerModal');
     if (modal) {
+        // Prevent clicks inside modal content from closing the modal
+        const modalContent = modal.querySelector('.modal-content-volunteer');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+        
+        // Only close modal when clicking the background
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 closeVolunteerForm();
+            }
+        });
+    }
+    
+    // Set up modal click outside handler for login form
+    const loginModal = document.getElementById('loginModal');
+    if (loginModal) {
+        // Prevent clicks inside modal content from closing the modal
+        const modalContent = loginModal.querySelector('.modal-content-volunteer');
+        if (modalContent) {
+            modalContent.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+        }
+        
+        // Only close modal when clicking the background
+        loginModal.addEventListener('click', (e) => {
+            if (e.target === loginModal) {
+                closeLoginForm();
             }
         });
     }
@@ -101,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (form) {
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+            e.stopPropagation();
             
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
@@ -166,6 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     submitBtn.textContent = 'Submit & Sign Up';
                 }
             }
+            
+            return false;
         });
     }
     
@@ -174,12 +205,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (loginForm) {
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            e.stopPropagation();
             
             const email = document.getElementById('loginEmail').value;
             const loginSuccessMessage = document.getElementById('loginSuccessMessage');
             const loginErrorMessage = document.getElementById('loginErrorMessage');
             const loginErrorText = document.getElementById('loginErrorText');
-            const loginSubmitBtn = document.querySelector('#loginForm .form-actions button[type="submit"]');
+            const loginSubmitBtn = document.querySelector('#loginForm button[type="submit"]');
             
             // Hide messages
             if (loginSuccessMessage) loginSuccessMessage.classList.add('d-none');
@@ -191,36 +223,65 @@ document.addEventListener('DOMContentLoaded', function() {
                     loginSubmitBtn.textContent = 'Logging in...';
                 }
                 
-                // Call backend API to login
-                const response = await fetch(`${API_BASE_URL}/volunteers/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email })
-                });
+                // Check localStorage first (demo purposes)
+                const storedProfile = localStorage.getItem('volunteerProfile');
+                let loginSuccess = false;
                 
-                const result = await response.json();
-                
-                if (!response.ok) {
-                    throw new Error(result.error || 'Login failed');
+                if (storedProfile) {
+                    try {
+                        const profile = JSON.parse(storedProfile);
+                        if (profile.email === email) {
+                            // Email found in localStorage
+                            loginSuccess = true;
+                            console.log('✅ Login successful - email found in local storage');
+                        }
+                    } catch (e) {
+                        console.log('Error checking localStorage');
+                    }
                 }
                 
-                // Store the profile data in localStorage
-                localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
+                if (!loginSuccess) {
+                    // Try backend API
+                    const response = await fetch(`${API_BASE_URL}/volunteers/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Email not registered. Please sign up first.');
+                    }
+                    
+                    // Store the profile data in localStorage
+                    localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
+                    loginSuccess = true;
+                }
                 
-                // Show success message
-                if (loginSuccessMessage) loginSuccessMessage.classList.remove('d-none');
-                
-                // Redirect to profile page after 1.5 seconds
-                setTimeout(() => {
-                    window.location.href = 'profile.html';
-                }, 1500);
+                if (loginSuccess) {
+                    // Show success message
+                    if (loginSuccessMessage) {
+                        loginSuccessMessage.classList.remove('d-none');
+                        loginSuccessMessage.textContent = '✅ Login successful! Redirecting...';
+                    }
+                    
+                    // Redirect to app page after 1.5 seconds
+                    setTimeout(() => {
+                        window.location.href = 'app.html';
+                    }, 1500);
+                } else {
+                    throw new Error('Email not registered. Please sign up first.');
+                }
                 
             } catch (error) {
                 console.error('Login error:', error);
                 if (loginErrorMessage) {
-                    if (loginErrorText) loginErrorText.textContent = error.message;
+                    if (loginErrorText) {
+                        loginErrorText.innerHTML = error.message + ' <a href="javascript:void(0);" onclick="closeLoginForm(); openVolunteerForm();" style="color: #64a19d; text-decoration: underline;">Sign up here</a>';
+                    }
                     loginErrorMessage.classList.remove('d-none');
                 }
             } finally {
@@ -229,6 +290,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     loginSubmitBtn.textContent = 'Login';
                 }
             }
+            
+            return false;
         });
     }
 });
