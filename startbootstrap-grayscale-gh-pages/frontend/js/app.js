@@ -223,6 +223,7 @@ function applyForEvent(eventId, eventTitle) {
 function loadDashboard() {
     const dashboardContent = document.getElementById('dashboardContent');
     const noDashboardContent = document.getElementById('noDashboardContent');
+    const dashboardSidebar = document.getElementById('dashboardSidebar');
     
     if (!dashboardContent) return;
     
@@ -231,105 +232,101 @@ function loadDashboard() {
         
         if (!userProfile) {
             dashboardContent.style.display = 'none';
-            if (noDashboardContent) noDashboardContent.style.display = 'block';
+            if (noDashboardContent) noDashboardContent.style.display = 'flex';
+            if (dashboardSidebar) dashboardSidebar.style.display = 'none';
             return;
         }
         
         const profile = JSON.parse(userProfile);
         
-        dashboardContent.innerHTML = `
-            <div class="profile-card">
-                <div class="profile-header">
-                    <div class="profile-photo-container">
-                        <div class="profile-photo" style="display:flex;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="profile-header-info">
-                            <h1 class="profile-name">${profile.fullName || 'Volunteer'}</h1>
-                            <span class="profile-badge">
-                                <i class="fas fa-check-circle"></i> Registered Volunteer
-                            </span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-content">
-                    <div class="content-left">
-                        <div class="section-card about-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-user"></i> About
-                            </h3>
-                            <p class="about-text">${profile.description || 'No description provided yet.'}</p>
-                        </div>
-
-                        <div class="section-card">
-                            <h3 class="section-title">
-                                <i class="fas fa-briefcase"></i> Experience
-                            </h3>
-                            <div class="info-item">
-                                <div class="info-icon"><i class="fas fa-briefcase"></i></div>
-                                <div class="info-content">
-                                    <div class="info-label">Past Experience</div>
-                                    <div class="info-value">${profile.experience || 'No experience listed'}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="content-right">
-                        <div class="section-card">
-                            <h3 class="section-title">
-                                <i class="fas fa-envelope"></i> Contact Info
-                            </h3>
-                            <div class="info-item">
-                                <div class="info-icon"><i class="fas fa-envelope"></i></div>
-                                <div class="info-content">
-                                    <div class="info-label">Email</div>
-                                    <div class="info-value">${profile.email || 'N/A'}</div>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-icon"><i class="fas fa-phone"></i></div>
-                                <div class="info-content">
-                                    <div class="info-label">Phone</div>
-                                    <div class="info-value">${profile.phone || 'N/A'}</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="section-card">
-                            <h3 class="section-title">
-                                <i class="fas fa-info-circle"></i> Details
-                            </h3>
-                            <div class="info-item">
-                                <div class="info-icon"><i class="fas fa-birthday-cake"></i></div>
-                                <div class="info-content">
-                                    <div class="info-label">Age</div>
-                                    <div class="info-value">${profile.age || 'N/A'}</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="profile-actions">
-                    <a href="index.html" class="btn-back">
-                        <i class="fas fa-arrow-left"></i> Back to Home
-                    </a>
-                    <button class="btn-logout" onclick="logout()">
-                        <i class="fas fa-sign-out-alt"></i> Logout
-                    </button>
-                </div>
-            </div>
-        `;
+        // Handle both camelCase and snake_case field names from different sources
+        const fullName = profile.fullName || profile.full_name || 'Volunteer';
+        const email = profile.email || 'No email';
+        const phone = profile.phone || profile.contact || 'N/A';
+        const age = profile.age || 'N/A';
+        const experience = profile.experience || profile['past experience'] || 'No experience listed';
+        const description = profile.description || 'No description provided.';
+        
+        // Update sidebar info
+        const sidebarName = document.getElementById('sidebarName');
+        const sidebarEmail = document.getElementById('sidebarEmail');
+        if (sidebarName) sidebarName.textContent = fullName;
+        if (sidebarEmail) sidebarEmail.textContent = email;
+        
+        // Update welcome message
+        const welcomeMsg = document.getElementById('welcomeMessage');
+        if (welcomeMsg) {
+            welcomeMsg.textContent = `Hello ${fullName}, welcome back!`;
+        }
+        
+        // Update profile section
+        document.getElementById('profileName').textContent = fullName;
+        document.getElementById('profileEmail').textContent = email;
+        document.getElementById('profilePhone').textContent = phone;
+        document.getElementById('profileEmailDetail').textContent = email;
+        document.getElementById('profileAge').textContent = age;
+        document.getElementById('profileExperience').textContent = experience;
+        document.getElementById('profileDescription').textContent = description;
+        
+        // Update profile pictures if available
+        const photoUrl = profile.photo_url || profile.photoUrl;
+        if (photoUrl) {
+            // Update sidebar avatar
+            const sidebarAvatar = document.getElementById('sidebarAvatar');
+            if (sidebarAvatar) {
+                sidebarAvatar.innerHTML = `<img src="${photoUrl}" alt="${fullName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            }
+            
+            // Update profile section avatar
+            const profileAvatarLarge = document.getElementById('profileAvatarLarge');
+            if (profileAvatarLarge) {
+                profileAvatarLarge.innerHTML = `<img src="${photoUrl}" alt="${fullName}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+            }
+        }
+        
+        // Set statistics (mock data - in production, fetch from backend)
+        document.getElementById('appliedCount').textContent = '0';
+        document.getElementById('hoursCount').textContent = '0';
+        document.getElementById('ratingCount').textContent = '4.5';
+        document.getElementById('upcomingCount').textContent = '0';
+        document.getElementById('profileStatus').textContent = '100% Complete';
         
         dashboardContent.style.display = 'block';
         if (noDashboardContent) noDashboardContent.style.display = 'none';
+        if (dashboardSidebar) dashboardSidebar.style.display = 'block';
+        
+        // Show overview section by default
+        showDashboardSection('overview');
+        
     } catch (error) {
-        console.error('Error loading dashboard:', error);
         dashboardContent.style.display = 'none';
-        if (noDashboardContent) noDashboardContent.style.display = 'block';
+        if (noDashboardContent) noDashboardContent.style.display = 'flex';
+        if (dashboardSidebar) dashboardSidebar.style.display = 'none';
     }
+}
+
+// Show/hide dashboard sections
+function showDashboardSection(sectionName) {
+    // Hide all sections
+    document.querySelectorAll('.dashboard-section').forEach(section => {
+        section.classList.remove('active');
+        section.style.display = 'none';
+    });
+    
+    // Remove active class from menu items
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Show selected section
+    const section = document.getElementById(sectionName + '-section');
+    if (section) {
+        section.style.display = 'block';
+        section.classList.add('active');
+    }
+    
+    // Add active class to clicked menu item
+    event?.currentTarget?.classList.add('active');
 }
 
 // Load profile data (for profile display)
