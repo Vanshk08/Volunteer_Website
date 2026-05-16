@@ -1,5 +1,16 @@
 // Global variables and functions - Define early so onclick handlers can find them
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL =
+    window.API_BASE_URL ||
+    document.documentElement.dataset.apiBaseUrl ||
+    'http://localhost:3001/api';
+
+async function trackPageView(page) {
+    try {
+        await fetch(`${API_BASE_URL}/${page}`);
+    } catch (error) {
+        console.warn(`Page tracking failed for ${page}:`, error);
+    }
+}
 
 function openVolunteerForm() {
     console.log('Opening form');
@@ -80,6 +91,8 @@ function closeLoginForm() {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Frontend initialized. Backend API base URL:', API_BASE_URL);
+
+    trackPageView('landing');
     
     // Check if user already has a profile
     if (localStorage.getItem('volunteerProfile')) {

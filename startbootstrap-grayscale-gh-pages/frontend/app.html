@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-api-base-url="http://localhost:3001/api">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -237,45 +237,103 @@
                                 </div>
 
                                 <div class="profile-card">
-                                    <div class="profile-header-info">
-                                        <div class="profile-avatar-large" id="profileAvatarLarge">
-                                            <i class="fas fa-user"></i>
+                                    <div class="profile-actions">
+                                        <button id="editProfileBtn" class="btn btn-primary" type="button" onclick="toggleEditProfile()">
+                                            <i class="fas fa-edit"></i> Edit Profile
+                                        </button>
+                                    </div>
+
+                                    <div id="profileViewMode">
+                                        <div class="profile-header-info">
+                                            <div class="profile-avatar-large" id="profileAvatarLarge">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div class="profile-name-info">
+                                                <h2 id="profileName">Volunteer</h2>
+                                                <p id="profileEmail">volunteer@example.com</p>
+                                            </div>
                                         </div>
-                                        <div class="profile-name-info">
-                                            <h2 id="profileName">Volunteer</h2>
-                                            <p id="profileEmail">volunteer@example.com</p>
+
+                                        <div class="profile-details">
+                                            <div class="profile-section-box">
+                                                <h3><i class="fas fa-phone"></i> Contact Information</h3>
+                                                <div class="detail-item">
+                                                    <label>Phone</label>
+                                                    <p id="profilePhone">N/A</p>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <label>Email</label>
+                                                    <p id="profileEmailDetail">N/A</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="profile-section-box">
+                                                <h3><i class="fas fa-info-circle"></i> Personal Information</h3>
+                                                <div class="detail-item">
+                                                    <label>Age</label>
+                                                    <p id="profileAge">N/A</p>
+                                                </div>
+                                                <div class="detail-item">
+                                                    <label>Experience</label>
+                                                    <p id="profileExperience">N/A</p>
+                                                </div>
+                                            </div>
+
+                                            <div class="profile-section-box full-width">
+                                                <h3><i class="fas fa-user"></i> About You</h3>
+                                                <p id="profileDescription">No description provided.</p>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="profile-details">
-                                        <div class="profile-section-box">
-                                            <h3><i class="fas fa-phone"></i> Contact Information</h3>
-                                            <div class="detail-item">
-                                                <label>Phone</label>
-                                                <p id="profilePhone">N/A</p>
+                                    <div id="profileEditMode" style="display: none;">
+                                        <form id="editProfileForm">
+                                            <div class="profile-edit-avatar">
+                                                <div class="profile-avatar-large" id="editAvatarDisplay">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="editProfilePicEdit">Profile Picture</label>
+                                                    <input type="file" id="editProfilePicEdit" accept="image/*" />
+                                                </div>
                                             </div>
-                                            <div class="detail-item">
-                                                <label>Email</label>
-                                                <p id="profileEmailDetail">N/A</p>
-                                            </div>
-                                        </div>
 
-                                        <div class="profile-section-box">
-                                            <h3><i class="fas fa-info-circle"></i> Personal Information</h3>
-                                            <div class="detail-item">
-                                                <label>Age</label>
-                                                <p id="profileAge">N/A</p>
+                                            <div class="profile-edit-grid">
+                                                <div class="form-group">
+                                                    <label for="editFullName">Full Name</label>
+                                                    <input type="text" id="editFullName" required />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="editEmailEdit">Email</label>
+                                                    <input type="email" id="editEmailEdit" required />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="editPhone">Phone</label>
+                                                    <input type="tel" id="editPhone" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="editAge">Age</label>
+                                                    <input type="number" id="editAge" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="editExperience">Experience</label>
+                                                    <textarea id="editExperience" rows="3"></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="editDescription">About You</label>
+                                                    <textarea id="editDescription" rows="3"></textarea>
+                                                </div>
                                             </div>
-                                            <div class="detail-item">
-                                                <label>Experience</label>
-                                                <p id="profileExperience">N/A</p>
-                                            </div>
-                                        </div>
 
-                                        <div class="profile-section-box full-width">
-                                            <h3><i class="fas fa-user"></i> About You</h3>
-                                            <p id="profileDescription">No description provided.</p>
-                                        </div>
+                                            <div class="profile-edit-actions">
+                                                <button type="submit" class="btn btn-primary">
+                                                    <i class="fas fa-save"></i> Save Changes
+                                                </button>
+                                                <button type="button" class="btn btn-secondary" onclick="cancelEditProfile()">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>

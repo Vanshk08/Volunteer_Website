@@ -1,6 +1,17 @@
 // App Page JavaScript - Tab Management & Events Loading
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL =
+    window.API_BASE_URL ||
+    document.documentElement.dataset.apiBaseUrl ||
+    'http://localhost:3001/api';
+
+async function trackPageView(page) {
+    try {
+        await fetch(`${API_BASE_URL}/${page}`);
+    } catch (error) {
+        console.warn(`Page tracking failed for ${page}:`, error);
+    }
+}
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,6 +28,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load initial data
     switchTab('events');
     loadProfile();
+
+    trackPageView('events');
+    trackPageView('volunteer-dashboard');
 });
 
 // Switch between tabs
@@ -43,8 +57,10 @@ function switchTab(tabName) {
     
     // Load content based on tab
     if (tabName === 'events') {
+        trackPageView('events');
         loadEvents();
     } else if (tabName === 'dashboard') {
+        trackPageView('volunteer-dashboard');
         loadDashboard();
     }
 }
@@ -269,7 +285,7 @@ function loadDashboard() {
         document.getElementById('profileDescription').textContent = description;
         
         // Update profile pictures if available
-        const photoUrl = profile.photo_url || profile.photoUrl;
+        const photoUrl = profile.photoDataUrl || profile.photo_url || profile.photoUrl;
         if (photoUrl) {
             // Update sidebar avatar
             const sidebarAvatar = document.getElementById('sidebarAvatar');
@@ -327,6 +343,159 @@ function showDashboardSection(sectionName) {
     
     // Add active class to clicked menu item
     event?.currentTarget?.classList.add('active');
+}
+
+function getStoredProfile() {
+    const userProfile = localStorage.getItem('volunteerProfile');
+    if (!userProfile) return null;
+    try {
+        return JSON.parse(userProfile);
+    } catch (error) {
+        console.error('Error parsing stored profile:', error);
+        return null;
+    }
+}
+
+function compressImageFile(file, maxSize = 400, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            const img = new Image();
+            img.onload = function() {
+                try {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxSize || height > maxSize) {
+                        const ratio = Math.min(maxSize / width, maxSize / height);
+                        width = Math.round(width * ratio);
+                        height = Math.round(height * ratio);
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    resolve(canvas.toDataURL('image/jpeg', quality));
+                } catch (error) {
+                    reject(error);
+                }
+            };
+
+            img.onerror = function() {
+                reject(new Error('Could not load image'));
+            };
+
+            img.src = event.target.result;
+        };
+
+        reader.onerror = function() {
+            reject(new Error('Could not read file'));
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
+
+function setEditAvatarPreview(photoUrl) {
+    const editAvatarDisplay = document.getElementById('editAvatarDisplay');
+    if (!editAvatarDisplay) return;
+
+    if (photoUrl) {
+        editAvatarDisplay.innerHTML = `<img src="${photoUrl}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+    } else {
+        editAvatarDisplay.innerHTML = '<i class="fas fa-user"></i>';
+    }
+}
+
+function toggleEditProfile() {
+    const viewMode = document.getElementById('profileViewMode');
+    const editMode = document.getElementById('profileEditMode');
+    const editBtn = document.getElementById('editProfileBtn');
+
+    if (!viewMode || !editMode || !editBtn) return;
+
+    const isEditing = editMode.style.display === 'block';
+
+    if (isEditing) {
+        viewMode.style.display = 'block';
+        editMode.style.display = 'none';
+        editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit Profile';
+        return;
+    }
+
+    const profile = getStoredProfile();
+    if (!profile) {
+        alert('Error: Profile not found');
+        return;
+    }
+
+    viewMode.style.display = 'none';
+    editMode.style.display = 'block';
+    editBtn.innerHTML = '<i class="fas fa-times"></i> Close';
+
+    document.getElementById('editFullName').value = profile.fullName || profile.full_name || '';
+    document.getElementById('editPhone').value = profile.phone || profile.contact || '';
+    document.getElementById('editEmailEdit').value = profile.email || '';
+    document.getElementById('editAge').value = profile.age || '';
+    document.getElementById('editExperience').value = profile.experience || profile['past experience'] || '';
+    document.getElementById('editDescription').value = profile.description || '';
+
+    const photoUrl = profile.photoDataUrl || profile.photo_url || profile.photoUrl;
+    setEditAvatarPreview(photoUrl);
+}
+
+function cancelEditProfile() {
+    toggleEditProfile();
+}
+
+async function saveProfileChanges() {
+    const profile = getStoredProfile();
+    if (!profile) {
+        alert('Error: Profile not found');
+        return;
+    }
+
+    const fullName = document.getElementById('editFullName').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+    const email = document.getElementById('editEmailEdit').value.trim();
+    const age = document.getElementById('editAge').value.trim();
+    const experience = document.getElementById('editExperience').value.trim();
+    const description = document.getElementById('editDescription').value.trim();
+    const profilePic = document.getElementById('editProfilePicEdit').files[0];
+
+    if (!fullName || !email) {
+        alert('Please enter your full name and email');
+        return;
+    }
+
+    profile.fullName = fullName;
+    profile.phone = phone;
+    profile.email = email;
+    profile.age = age;
+    profile.experience = experience;
+    profile.description = description;
+
+    if (profilePic) {
+        try {
+            const compressedImage = await compressImageFile(profilePic, 400, 0.7);
+            profile.photoDataUrl = compressedImage;
+            profile.photoUrl = compressedImage;
+        } catch (error) {
+            console.error('Error compressing image:', error);
+            alert('Error: Image is too large or invalid. Please use a smaller image.');
+            return;
+        }
+    }
+
+    localStorage.setItem('volunteerProfile', JSON.stringify(profile));
+    loadDashboard();
+    toggleEditProfile();
+    alert('Profile updated successfully!');
 }
 
 // Load profile data (for profile display)
@@ -599,6 +768,40 @@ document.addEventListener('DOMContentLoaded', function() {
             loginForm.reset();
         });
     }
+
+        // Set up edit profile form submission
+        const editProfileForm = document.getElementById('editProfileForm');
+        if (editProfileForm) {
+            editProfileForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                try {
+                    await saveProfileChanges();
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                    alert('Error updating profile: ' + error.message);
+                }
+
+                return false;
+            });
+        }
+
+        // Add file input preview listener
+        const profilePicInput = document.getElementById('editProfilePicEdit');
+        if (profilePicInput) {
+            profilePicInput.addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                try {
+                    const compressedImage = await compressImageFile(file, 400, 0.7);
+                    setEditAvatarPreview(compressedImage);
+                } catch (error) {
+                    console.error('Error compressing preview:', error);
+                }
+            });
+        }
     
     // Set up "Go to Login" button listener
     const goToLoginBtn = document.getElementById('goToLoginBtn');
