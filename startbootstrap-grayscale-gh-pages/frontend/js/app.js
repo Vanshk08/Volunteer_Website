@@ -462,40 +462,90 @@ async function saveProfileChanges() {
 
     const fullName = document.getElementById('editFullName').value.trim();
     const phone = document.getElementById('editPhone').value.trim();
-    const email = document.getElementById('editEmailEdit').value.trim();
+    const newEmail = document.getElementById('editEmailEdit').value.trim();
     const age = document.getElementById('editAge').value.trim();
     const experience = document.getElementById('editExperience').value.trim();
     const description = document.getElementById('editDescription').value.trim();
     const profilePic = document.getElementById('editProfilePicEdit').files[0];
 
-    if (!fullName || !email) {
+    if (!fullName || !newEmail) {
         alert('Please enter your full name and email');
         return;
     }
 
-    profile.fullName = fullName;
-    profile.phone = phone;
-    profile.email = email;
-    profile.age = age;
-    profile.experience = experience;
-    profile.description = description;
+    try {
+        // Create FormData for file upload if there's a new photo
+        const formData = new FormData();
+        // Use volunteer ID to find the record (most reliable)
+        formData.append('volunteerId', profile.id);
+        // New email (in case they're changing it)
+        formData.append('email', newEmail);
+        formData.append('fullName', fullName);
+        formData.append('phone', phone);
+        formData.append('age', age);
+        formData.append('experience', experience);
+        formData.append('description', description);
 
-    if (profilePic) {
-        try {
-            const compressedImage = await compressImageFile(profilePic, 400, 0.7);
-            profile.photoDataUrl = compressedImage;
-            profile.photoUrl = compressedImage;
-        } catch (error) {
-            console.error('Error compressing image:', error);
-            alert('Error: Image is too large or invalid. Please use a smaller image.');
-            return;
+        console.log('🔍 Profile data being saved:', { 
+            volunteerId: profile.id,
+            fullName,
+            email: newEmail,
+            phone,
+            age,
+            experience,
+            description
+        });
+
+        if (profilePic) {
+            try {
+                formData.append('photoUpload', profilePic);
+            } catch (error) {
+                console.error('Error adding photo to form:', error);
+                alert('Error: Unable to process image.');
+                return;
+            }
+        } else if (profile.photo_url) {
+            formData.append('photoUrl', profile.photo_url);
         }
-    }
 
-    localStorage.setItem('volunteerProfile', JSON.stringify(profile));
-    loadDashboard();
-    toggleEditProfile();
-    alert('Profile updated successfully!');
+        // Send update to backend
+        const response = await fetch(`${API_BASE_URL}/volunteers/update`, {
+            method: 'PUT',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to update profile');
+        }
+
+        const result = await response.json();
+
+        // Update localStorage with the response data from backend
+        const updatedProfile = {
+            ...profile,
+            id: result.data.id,
+            full_name: result.data.full_name,
+            fullName: result.data.full_name,
+            age: result.data.age,
+            email: result.data.email,
+            contact: result.data.contact,
+            phone: result.data.contact,
+            'past experience': result.data['past experience'],
+            experience: result.data['past experience'],
+            description: result.data.description,
+            photo_url: result.data.photo_url,
+            photoUrl: result.data.photo_url
+        };
+
+        localStorage.setItem('volunteerProfile', JSON.stringify(updatedProfile));
+        loadDashboard();
+        toggleEditProfile();
+        alert('Profile updated successfully!');
+    } catch (error) {
+        console.error('Error saving profile:', error);
+        alert('Error: ' + error.message);
+    }
 }
 
 // Load profile data (for profile display)

@@ -13,8 +13,10 @@ const PORT = process.env.PORT || 3001;
 const defaultAllowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
+    'http://localhost:5500',
     'http://127.0.0.1:3000',
-    'http://127.0.0.1:3001'
+    'http://127.0.0.1:3001',
+    'http://127.0.0.1:5500'
 ];
 
 const allowedOrigins = process.env.CORS_ORIGINS
@@ -40,15 +42,33 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // Initialize Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
     console.error('❌ Missing Supabase credentials in .env file');
 }
 
+if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('⚠️ SUPABASE_SERVICE_ROLE_KEY is not set; writes may be blocked by RLS');
+}
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 app.use('/api', createApiRouter({ supabase, upload }));
+
+// Debug: Log all registered routes
+app.use((req, res, next) => {
+    if (req.path.startsWith('/api')) {
+        console.log(`API Request: ${req.method} ${req.path}`);
+    }
+    next();
+});
+
+// Catch 404 for debugging
+app.use((req, res) => {
+    console.log(`404 Not Found: ${req.method} ${req.path}`);
+    res.status(404).json({ error: 'Route not found', path: req.path, method: req.method });
+});
 
 // Start server
 app.listen(PORT, () => {

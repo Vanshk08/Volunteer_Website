@@ -236,59 +236,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     loginSubmitBtn.textContent = 'Logging in...';
                 }
                 
-                // Check localStorage first (demo purposes)
-                const storedProfile = localStorage.getItem('volunteerProfile');
-                let loginSuccess = false;
+                // Always fetch from backend so we get the latest profile and ID
+                const response = await fetch(`${API_BASE_URL}/volunteers/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
                 
-                if (storedProfile) {
-                    try {
-                        const profile = JSON.parse(storedProfile);
-                        if (profile.email === email) {
-                            // Email found in localStorage
-                            loginSuccess = true;
-                            console.log('✅ Login successful - email found in local storage');
-                        }
-                    } catch (e) {
-                        console.log('Error checking localStorage');
-                    }
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'Email not registered. Please sign up first.');
                 }
                 
-                if (!loginSuccess) {
-                    // Try backend API
-                    const response = await fetch(`${API_BASE_URL}/volunteers/login`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ email })
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (!response.ok) {
-                        throw new Error(result.error || 'Email not registered. Please sign up first.');
-                    }
-                    
-                    // Store the profile data in localStorage
-                    localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
-                    loginSuccess = true;
+                // Store the profile data in localStorage
+                localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
+                
+                // Login succeeded
+                if (loginSuccessMessage) {
+                    loginSuccessMessage.classList.remove('d-none');
+                    loginSuccessMessage.textContent = '✅ Login successful! Redirecting...';
                 }
                 
-                if (loginSuccess) {
-                    // Show success message
-                    if (loginSuccessMessage) {
-                        loginSuccessMessage.classList.remove('d-none');
-                        loginSuccessMessage.textContent = '✅ Login successful! Redirecting...';
-                    }
-                    
-                    // Redirect to app page after 1.5 seconds
-                    setTimeout(() => {
-                        window.location.href = 'app.html';
-                    }, 1500);
-                } else {
-                    throw new Error('Email not registered. Please sign up first.');
-                }
-                
+                setTimeout(() => {
+                    window.location.href = 'app.html';
+                }, 1500);
+                return;
             } catch (error) {
                 console.error('Login error:', error);
                 if (loginErrorMessage) {
