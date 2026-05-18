@@ -25,16 +25,27 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 500);
     }
     
+    // Get initial tab from URL parameter or default to 'events'
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab') || 'events';
+    
     // Load initial data
-    switchTab('events');
+    switchTab(initialTab, false); // false = don't push state on initial load
     loadProfile();
 
     trackPageView('events');
     trackPageView('volunteer-dashboard');
 });
 
+// Handle browser back/forward buttons
+window.addEventListener('popstate', function(event) {
+    if (event.state && event.state.tab) {
+        switchTab(event.state.tab, false); // false = don't push state again
+    }
+});
+
 // Switch between tabs
-function switchTab(tabName) {
+function switchTab(tabName, pushState = true) {
     // Hide all tabs
     const tabs = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => tab.classList.remove('active'));
@@ -53,6 +64,12 @@ function switchTab(tabName) {
     const selectedBtn = document.querySelector(`[data-tab="${tabName}"]`);
     if (selectedBtn) {
         selectedBtn.classList.add('active');
+    }
+    
+    // Update URL with History API
+    if (pushState) {
+        const newUrl = `${window.location.pathname}?tab=${tabName}`;
+        window.history.pushState({ tab: tabName }, '', newUrl);
     }
     
     // Load content based on tab
