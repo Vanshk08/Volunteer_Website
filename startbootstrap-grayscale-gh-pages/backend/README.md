@@ -21,6 +21,8 @@ This backend handles all Supabase database operations for the volunteer manageme
 
    The server will run on `http://localhost:3001`
 
+  CORS allows Vercel preview deployments; update the allowlist in `server.js` if needed.
+
 ## API Endpoints
 
 ### POST `/api/volunteers/signup`
