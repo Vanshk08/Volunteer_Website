@@ -9,6 +9,7 @@ const createApiRouter = require('./routes');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
 
 const localAllowedOrigins = [
     'http://localhost:3000',
@@ -84,6 +85,11 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+app.listen(PORT, HOST, () => {
+    const railwayDomain = process.env.RAILWAY_PUBLIC_DOMAIN || process.env.RAILWAY_STATIC_URL;
+    if (railwayDomain) {
+        console.log(`Server running on https://${railwayDomain}`);
+    } else {
+        console.log(`Server running on http://localhost:${PORT}`);
+    }
 });
