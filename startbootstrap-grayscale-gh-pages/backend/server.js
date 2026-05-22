@@ -10,7 +10,7 @@ const createApiRouter = require('./routes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-const defaultAllowedOrigins = [
+const localAllowedOrigins = [
     'http://localhost:3000',
     'http://localhost:3001',
     'http://localhost:5500',
@@ -19,21 +19,34 @@ const defaultAllowedOrigins = [
     'http://127.0.0.1:5500'
 ];
 
-const allowedOrigins = process.env.CORS_ORIGINS
+const productionAllowedOrigins = [
+    'https://volunteer-website-mu.vercel.app'
+];
+
+const envAllowedOrigins = process.env.CORS_ORIGINS
     ? process.env.CORS_ORIGINS.split(',').map(origin => origin.trim()).filter(Boolean)
-    : defaultAllowedOrigins;
+    : [];
+
+const allowedOrigins = Array.from(new Set([
+    ...localAllowedOrigins,
+    ...productionAllowedOrigins,
+    ...envAllowedOrigins
+]));
+
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error('Not allowed by CORS'));
+    },
+    optionsSuccessStatus: 204
+};
 
 // Middleware
-app.use(
-    cors({
-        origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
-                return callback(null, true);
-            }
-            return callback(new Error('Not allowed by CORS'));
-        }
-    })
-);
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
