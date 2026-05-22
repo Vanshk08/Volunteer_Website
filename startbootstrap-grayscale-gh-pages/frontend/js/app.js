@@ -3,7 +3,7 @@
 const API_BASE_URL =
     window.API_BASE_URL ||
     document.documentElement.dataset.apiBaseUrl ||
-    'http://localhost:3001/api';
+    'https://volunteerwebsite-production-8fcc.up.railway.app/api';
 
 async function trackPageView(page) {
     try {
@@ -98,7 +98,7 @@ function loadEvents() {
             slots: 25,
             filledSlots: 18,
             hourlyRate: 18,
-            image: 'assets/img/demo-image-01.jpg'
+            image: 'https://dailypioneer.com/uploads/2026/story/images/big/karan-aujla---s-show--india---s-2nd-biggest-concert-2026-03-02.jpg'
         },
         {
             id: 2,
@@ -109,7 +109,7 @@ function loadEvents() {
             slots: 50,
             filledSlots: 35,
             hourlyRate: 22,
-            image: 'assets/img/demo-image-02.jpg'
+            image: 'https://img-cdn.publive.online/fit-in/640x430/filters:format(webp)/vnd/media/media_files/2026/02/16/india-ai-impact-summit-day1-chaos-2026-02-16-17-44-41.png'
         },
         {
             id: 3,
@@ -120,7 +120,7 @@ function loadEvents() {
             slots: 100,
             filledSlots: 75,
             hourlyRate: 16,
-            image: 'assets/img/bg-masthead.jpg'
+            image: 'https://musicalsatans.com/wp-content/uploads/2025/02/IMG_20250228_235431.jpgg'
         },
         {
             id: 4,
@@ -131,7 +131,7 @@ function loadEvents() {
             slots: 30,
             filledSlots: 20,
             hourlyRate: 20,
-            image: 'assets/img/demo-image-01.jpg'
+            image: 'https://dailypioneer.com/uploads/2026/story/images/big/karan-aujla---s-show--india---s-2nd-biggest-concert-2026-03-02.jpg'
         },
         {
             id: 5,
@@ -142,7 +142,7 @@ function loadEvents() {
             slots: 40,
             filledSlots: 28,
             hourlyRate: 25,
-            image: 'assets/img/demo-image-02.jpg'
+            image: 'https://img-cdn.publive.online/fit-in/640x430/filters:format(webp)/vnd/media/media_files/2026/02/16/india-ai-impact-summit-day1-chaos-2026-02-16-17-44-41.png'
         },
         {
             id: 6,

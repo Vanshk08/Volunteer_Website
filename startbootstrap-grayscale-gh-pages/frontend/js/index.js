@@ -2,7 +2,7 @@
 const API_BASE_URL =
     window.API_BASE_URL ||
     document.documentElement.dataset.apiBaseUrl ||
-    'http://localhost:3001/api';
+    'https://volunteerwebsite-production-8fcc.up.railway.app/api';
 
 async function trackPageView(page) {
     try {
