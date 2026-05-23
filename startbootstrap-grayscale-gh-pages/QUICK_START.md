@@ -1,6 +1,6 @@
-# HiredIn Event Hub - Quick Start Guide
+# Staffly Event Hub - Quick Start Guide
 
-## 🚀 Getting Started
+## Getting Started
 
 ### View the Landing Page
 1. Open `frontend/index.html` in your browser
@@ -55,7 +55,7 @@ After clicking "Get Started", you'll be redirected to the main application.
 
 ---
 
-## 📁 File Structure Overview
+## File Structure Overview
 
 ```
 frontend/
@@ -75,7 +75,7 @@ frontend/
 
 ---
 
-## 🎯 Key Pages
+## Key Pages
 
 ### **index.html** - Landing Page
 - Entry point for all visitors
@@ -93,7 +93,7 @@ frontend/
 
 ---
 
-## 🎨 Design Features
+## Design Features
 
 ### Color Scheme
 - **Primary**: Teal (#64a19d)
@@ -115,7 +115,7 @@ frontend/
 
 ---
 
-## 📱 Responsive Breakpoints
+## Responsive Breakpoints
 
 ### Desktop (1024px+)
 - Full features enabled
@@ -137,7 +137,7 @@ frontend/
 
 ---
 
-## 🔄 User Journey
+## User Journey
 
 ```
 1. User visits website
@@ -169,7 +169,7 @@ frontend/
 
 ---
 
-## ⚙️ Technical Details
+## Technical Details
 
 ### No Backend Required (Demo)
 - Uses browser localStorage
@@ -192,7 +192,7 @@ frontend/
 
 ---
 
-## 🛠️ Customization Quick Tips
+## Customization Quick Tips
 
 ### Change Primary Color
 Edit `css/styles.css` line 37:
@@ -220,7 +220,7 @@ Edit `app.html`:
 
 ---
 
-## 📊 Event Mock Data
+## Event Mock Data
 
 Sample events include:
 - Music Festival 2024
@@ -239,33 +239,33 @@ Each event has:
 
 ---
 
-## ✨ Feature Highlights
+## Feature Highlights
 
-✅ **Professional Landing Page**
+**Professional Landing Page**
 - Compelling hero section
 - Clear value proposition
 - Social proof section
 - Strong call-to-action
 
-✅ **Organized App Interface**
+**Organized App Interface**
 - Tab-based navigation
 - Clean event cards
 - Profile management
 - Placeholder for chat
 
-✅ **Responsive Design**
+**Responsive Design**
 - Works on all devices
 - Touch-friendly
 - Fast loading
 - Smooth scrolling
 
-✅ **User Authentication**
+**User Authentication**
 - Simple signup
 - Profile persistence
 - Easy logout
 - Session management
 
-✅ **Visual Polish**
+**Visual Polish**
 - Modern animations
 - Gradient backgrounds
 - Hover effects
@@ -273,7 +273,7 @@ Each event has:
 
 ---
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### App.html redirects to index.html
 - **Cause**: No user profile in localStorage
@@ -293,7 +293,7 @@ Each event has:
 
 ---
 
-## 📚 Additional Resources
+## Additional Resources
 
 ### Documentation Files
 - `STRUCTURE.md` - Detailed architecture
@@ -311,7 +311,7 @@ Each event has:
 
 ---
 
-## 🚀 Next Steps
+## Next Steps
 
 ### Immediate
 1. Test all pages and features
@@ -333,7 +333,7 @@ Each event has:
 
 ---
 
-## ❓ FAQ
+## FAQ
 
 **Q: How do I add real events?**
 A: Connect to your backend API. The code is ready for fetch() calls.
@@ -352,7 +352,7 @@ A: Yes! Fully responsive design. Works on phones, tablets, desktops.
 
 ---
 
-## 📞 Support
+## Support
 
 For questions or issues:
 1. Check the documentation files
@@ -362,4 +362,4 @@ For questions or issues:
 
 ---
 
-Enjoy your new and improved HiredIn Event Hub! 🎉
+Enjoy your new and improved Staffly Event Hub!

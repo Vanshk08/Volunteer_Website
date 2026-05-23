@@ -191,11 +191,11 @@ function createEventCard(event) {
         <img src="${event.image}" alt="${event.title}" class="event-image">
         <div class="event-card-body">
             <div class="event-date">
-                <i class="fas fa-calendar"></i> ${formattedDate}
+                ${formattedDate}
             </div>
             <h3 class="event-title">${event.title}</h3>
             <div class="event-location">
-                <i class="fas fa-map-marker-alt"></i> ${event.location}
+                ${event.location}
             </div>
             <div class="event-details">
                 <div class="detail-item">
@@ -208,7 +208,7 @@ function createEventCard(event) {
                 </div>
             </div>
             <button class="event-btn" onclick="applyForEvent(${event.id}, '${event.title}')">
-                <i class="fas fa-check"></i> Apply Now
+                Apply Now
             </button>
         </div>
     `;
@@ -425,7 +425,7 @@ function setEditAvatarPreview(photoUrl) {
     if (photoUrl) {
         editAvatarDisplay.innerHTML = `<img src="${photoUrl}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
     } else {
-        editAvatarDisplay.innerHTML = '<i class="fas fa-user"></i>';
+        editAvatarDisplay.innerHTML = '';
     }
 }
 
@@ -441,7 +441,7 @@ function toggleEditProfile() {
     if (isEditing) {
         viewMode.style.display = 'block';
         editMode.style.display = 'none';
-        editBtn.innerHTML = '<i class="fas fa-edit"></i> Edit Profile';
+        editBtn.innerHTML = 'Edit Profile';
         return;
     }
 
@@ -453,7 +453,7 @@ function toggleEditProfile() {
 
     viewMode.style.display = 'none';
     editMode.style.display = 'block';
-    editBtn.innerHTML = '<i class="fas fa-times"></i> Close';
+    editBtn.innerHTML = 'Close';
 
     document.getElementById('editFullName').value = profile.fullName || profile.full_name || '';
     document.getElementById('editPhone').value = profile.phone || profile.contact || '';
@@ -503,7 +503,7 @@ async function saveProfileChanges() {
         formData.append('experience', experience);
         formData.append('description', description);
 
-        console.log('🔍 Profile data being saved:', { 
+        console.log('Profile data being saved:', { 
             volunteerId: profile.id,
             fullName,
             email: newEmail,
@@ -747,7 +747,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Success!
                 if (successMsg) {
                     successMsg.classList.remove('d-none');
-                    successMsg.textContent = '✅ Signup successful! You can now browse events.';
+                    successMsg.textContent = 'Signup successful! You can now browse events.';
                 }
                 
                 // Store profile data in localStorage
@@ -767,7 +767,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const errorMsg = document.getElementById('errorMessage');
                 if (errorMsg) {
                     errorMsg.classList.remove('d-none');
-                    errorMsg.textContent = '❌ Error: ' + error.message;
+                    errorMsg.textContent = 'Error: ' + error.message;
                 }
             }
             

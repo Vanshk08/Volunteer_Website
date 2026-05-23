@@ -32,14 +32,14 @@ window.addEventListener('DOMContentLoaded', function() {
             
             // Handle image load success
             photoImg.onload = function() {
-                console.log('✅ Image loaded successfully');
+                console.log('Image loaded successfully');
                 photoImg.style.display = 'block';
                 placeholder.style.display = 'none';
             };
             
             // Handle image load error
             photoImg.onerror = function() {
-                console.error('❌ Failed to load image from:', data.photo_url);
+                console.error('Failed to load image from:', data.photo_url);
                 photoImg.style.display = 'none';
                 placeholder.style.display = 'flex';
             };

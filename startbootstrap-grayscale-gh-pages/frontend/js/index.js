@@ -90,7 +90,7 @@ function closeLoginForm() {
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('✅ Frontend initialized. Backend API base URL:', API_BASE_URL);
+    console.log('Frontend initialized. Backend API base URL:', API_BASE_URL);
 
     trackPageView('landing');
     
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Login succeeded
                 if (loginSuccessMessage) {
                     loginSuccessMessage.classList.remove('d-none');
-                    loginSuccessMessage.textContent = '✅ Login successful! Redirecting...';
+                    loginSuccessMessage.textContent = 'Login successful! Redirecting...';
                 }
                 
                 setTimeout(() => {
