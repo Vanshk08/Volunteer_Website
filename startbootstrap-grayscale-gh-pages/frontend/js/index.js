@@ -1,8 +1,23 @@
 // Global variables and functions - Define early so onclick handlers can find them
-const API_BASE_URL =
+function normalizeApiBaseUrl(value) {
+    const trimmedValue = String(value || '').trim();
+
+    if (!trimmedValue) {
+        return 'https://volunteerwebsite-production-8fcc.up.railway.app/api';
+    }
+
+    if (/^https?:\/\//i.test(trimmedValue)) {
+        return trimmedValue.replace(/\/$/, '');
+    }
+
+    return `https://${trimmedValue.replace(/^\/+/, '').replace(/\/$/, '')}`;
+}
+
+const API_BASE_URL = normalizeApiBaseUrl(
     window.API_BASE_URL ||
     document.documentElement.dataset.apiBaseUrl ||
-    'https://volunteerwebsite-production-8fcc.up.railway.app/api';
+    'https://volunteerwebsite-production-8fcc.up.railway.app/api'
+);
 
 async function trackPageView(page) {
     try {
