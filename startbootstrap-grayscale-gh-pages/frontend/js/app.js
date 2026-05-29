@@ -688,6 +688,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Collect form data
                 const fullName = document.getElementById('fullName').value;
                 const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
                 const phone = document.getElementById('phone').value;
                 const age = document.getElementById('age').value;
                 const experience = document.getElementById('experience').value;
@@ -701,7 +702,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (successMsg) successMsg.classList.add('d-none');
                 
                 // Validate required fields
-                if (!fullName || !email) {
+                if (!fullName || !email || !password) {
                     if (errorMsg) {
                         errorMsg.classList.remove('d-none');
                         errorMsg.textContent = 'Please fill in all required fields';
@@ -709,32 +710,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
-                // Check if email already exists by calling login endpoint
-                try {
-                    const checkResponse = await fetch(`${API_BASE_URL}/volunteers/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: email })
-                    });
-                    
-                    const checkResult = await checkResponse.json();
-                    
-                    // If email is found in database, show error
-                    if (checkResponse.ok && checkResult.data) {
-                        if (errorMsg) {
-                            errorMsg.classList.remove('d-none');
-                            errorMsg.innerHTML = '<strong>Email already registered.</strong> <a href="javascript:void(0);" onclick="closeVolunteerForm(); openLoginForm();" style="color: #64a19d; text-decoration: underline;">Login here</a>';
-                        }
-                        return;
-                    }
-                } catch (error) {
-                    // Email check failed, proceed with signup
-                }
-                
                 // Prepare FormData for API
                 const formData = new FormData();
                 formData.append('fullName', fullName);
                 formData.append('email', email);
+                formData.append('password', password);
                 formData.append('phone', phone);
                 formData.append('age', age);
                 formData.append('experience', experience);
@@ -766,7 +746,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Store profile data in localStorage
-                localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
+                localStorage.setItem('volunteerProfile', JSON.stringify(result.user));
                 
                 // Update navbar buttons
                 loadProfile();
@@ -797,6 +777,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             
             const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
             const loginSuccessMessage = document.getElementById('loginSuccessMessage');
             const loginErrorMessage = document.getElementById('loginErrorMessage');
             
@@ -809,12 +790,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 const response = await fetch(`${API_BASE_URL}/volunteers/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email })
+                    body: JSON.stringify({ email: email, password: password })
                 });
                 
                 const result = await response.json();
                 
-                if (response.ok && result.data) {
+                if (response.ok && result.user) {
                     // Email found - login successful
                     if (loginSuccessMessage) {
                         loginSuccessMessage.classList.remove('d-none');
@@ -822,7 +803,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     
                     // Store profile in localStorage for session
-                    localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
+                    localStorage.setItem('volunteerProfile', JSON.stringify(result.user));
                     
                     // Update navbar buttons
                     loadProfile();
@@ -836,7 +817,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Email not found - ask to signup
                     if (loginErrorMessage) {
                         loginErrorMessage.classList.remove('d-none');
-                        loginErrorMessage.innerHTML = '<strong>No account found with this email.</strong> <a href="javascript:void(0);" onclick="closeLoginForm(); openVolunteerForm();" style="color: #64a19d; text-decoration: underline;">Create an account</a>';
+                        loginErrorMessage.textContent = result.error || 'Invalid email or password.';
                     }
                 }
             } catch (error) {

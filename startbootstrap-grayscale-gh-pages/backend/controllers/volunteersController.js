@@ -6,14 +6,39 @@ function createVolunteersController({ supabase }) {
                     fullName,
                     age,
                     email,
+                    password,
                     phone,
                     experience,
                     description
                 } = req.body;
 
                 // Validate required fields
-                if (!fullName || !email) {
-                    return res.status(400).json({ error: 'Full name and email are required' });
+                if (!fullName || !email || !password) {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Full name, email, and password are required'
+                    });
+                }
+
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email,
+                    password
+                });
+
+                if (authError) {
+                    return res.status(400).json({
+                        success: false,
+                        error: authError.message
+                    });
+                }
+
+                const authUserId = authData?.user?.id;
+
+                if (!authUserId) {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Auth user was not created. Please check Supabase Auth settings.'
+                    });
                 }
 
                 let photoUrl = null;
@@ -45,6 +70,7 @@ function createVolunteersController({ supabase }) {
 
                 // Prepare volunteer data
                 const formData = {
+                    user_id: authUserId,
                     full_name: fullName,
                     age: parseInt(age) || null,
                     email: email,
@@ -52,7 +78,9 @@ function createVolunteersController({ supabase }) {
                     'past experience': experience || null,
                     description: description || null,
                     photo_url: photoUrl,
-                    submitted_at: new Date().toISOString()
+                    submitted_at: new Date().toISOString(),
+                    role: 'volunteer',
+                    approval_status: 'pending'
                 };
 
                 // Insert into Supabase
@@ -69,7 +97,8 @@ function createVolunteersController({ supabase }) {
                 res.json({
                     success: true,
                     message: 'Volunteer signup successful',
-                    data: data[0]
+                    user: data[0],
+                    session: authData.session
                 });
 
             } catch (error) {
@@ -83,30 +112,45 @@ function createVolunteersController({ supabase }) {
 
         async login(req, res) {
             try {
-                const { email } = req.body;
+                const { email, password } = req.body;
 
-                if (!email) {
-                    return res.status(400).json({ error: 'Email is required' });
+                if (!email || !password) {
+                    return res.status(400).json({
+                        success: false,
+                        error: 'Email and password are required'
+                    });
                 }
 
-                // Query Supabase for the volunteer
-                const { data, error } = await supabase
+                const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                });
+
+                if (authError) {
+                    return res.status(401).json({
+                        success: false,
+                        error: authError.message
+                    });
+                }
+
+                const { data: volunteerData, error: volunteerError } = await supabase
                     .from('Volunteers')
                     .select('*')
-                    .eq('email', email)
+                    .eq('user_id', authData.user.id)
                     .single();
 
-                if (error || !data) {
+                if (volunteerError || !volunteerData) {
                     return res.status(404).json({
                         success: false,
-                        error: 'No volunteer found with this email address.'
+                        error: 'Volunteer profile not found'
                     });
                 }
 
                 res.json({
                     success: true,
                     message: 'Login successful',
-                    data: data
+                    session: authData.session,
+                    user: volunteerData
                 });
 
             } catch (error) {
