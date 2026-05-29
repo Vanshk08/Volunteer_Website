@@ -1,19 +1,29 @@
 <!DOCTYPE html>
-<html lang="en" data-api-base-url="https://volunteerwebsite-production-8fcc.up.railway.app/api">
+<html lang="en" data-api-base-url="http://localhost:3001/api">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Staffly helps volunteers discover verified event opportunities, apply fast, and build real experience at concerts, conferences, and live experiences." />
+        <meta name="description" content="Staffly helps volunteers discover verified event opportunities, apply fast, and build real experience." />
         <meta name="author" content="Staffly" />
         <title>Staffly | Verified Event Opportunities</title>
         <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Poppins:400,500,600,700,800" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
         <link href="css/styles.css" rel="stylesheet" />
         <link href="css/index.css" rel="stylesheet" />
+        <link href="css/editorial.css" rel="stylesheet" />
+        <style>
+        /* Override global black backgrounds to match warm hero palette */
+        body{background:#141012;color:#F7F4EE}
+        .bg-black{background:#141012!important}
+        .text-white-50{color:rgba(247,244,238,0.6)!important}
+        </style>
     </head>
-    <body id="page-top">
+    <body id="page-top" style="background:#141012;color:#F7F4EE">
         <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
             <div class="container px-4 px-lg-5">
                 <a class="navbar-brand" href="#page-top">Staffly</a>
@@ -23,196 +33,233 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarResponsive">
                     <ul class="navbar-nav ms-auto">
-                        <li class="nav-item"><a class="nav-link" href="#featured">Featured</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#about">How it Works</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#benefits">Why Staffly</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#how">How it Works</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#feature">Features</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#voices">Stories</a></li>
                         <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
                     </ul>
                 </div>
             </div>
         </nav>
 
-        <header class="masthead">
-            <div class="container px-4 px-lg-5 hero-shell">
-                <div class="hero-copy text-center text-lg-start">
-                    <div class="hero-badge">
-                        
-                        Verified event opportunities
-                    </div>
-                    <h1>Build experience at events people actually notice.</h1>
-                    <h2>Apply to curated volunteer roles at concerts, conferences, and live experiences. Fast onboarding, clear roles, and a more professional way to get involved.</h2>
-                    <div class="hero-actions d-flex flex-column flex-sm-row gap-3 justify-content-center justify-content-lg-start">
-                        <a class="btn btn-primary btn-lg" href="app.html">Browse Opportunities</a>
-                        <a class="btn btn-outline-light btn-lg" href="#about">See How It Works</a>
-                    </div>
-                    <div class="hero-stats">
-                        <div class="stat-pill"><strong>24h</strong><span>typical response time</span></div>
-                        <div class="stat-pill"><strong>1000+</strong><span>event-ready profiles</span></div>
-                        <div class="stat-pill"><strong>3 steps</strong><span>to get started</span></div>
-                    </div>
+                <header class="masthead intro-masthead">
+                    <div class="noise"></div>
+                    <svg class="filters" aria-hidden="true" focusable="false">
+                        <defs>
+                            <filter id="threshold">
+                                <feColorMatrix
+                                    in="SourceGraphic"
+                                    type="matrix"
+                                    values="1 0 0 0 0
+                                            0 1 0 0 0
+                                            0 0 1 0 0
+                                            0 0 0 25 -9"
+                                    result="goo"
+                                />
+                                <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+                            </filter>
+                        </defs>
+                    </svg>
+
+                    <section class="hero">
+                        <div class="morph-container">
+                            <div class="word-rotator">
+                                <div class="word">DISCOVER</div>
+                                <div class="word">APPLY</div>
+                                <div class="word">VOLUNTEER</div>
+                            </div>
+                        </div>
+                        <p class="subtext">The Art of Events</p>
+                        <p class="hero-message">Verified opportunities. Faster signups. Better experiences.</p>
+                        <a class="hero-cta" href="app.html">Join for Free</a>
+
+                        <div class="scroll-indicator" aria-hidden="true">
+                            <div class="mouse">
+                                <div class="wheel"></div>
+                            </div>
+                        </div>
+                    </section>
+                </header>
+
+        <!-- stats section removed per user request -->
+
+        <div class="marquee-wrap" aria-hidden="true">
+            <div class="marquee-track">
+                <span class="marquee-item">Post an event <span class="marquee-dot"></span></span>
+                <span class="marquee-item">Collect applications <span class="marquee-dot"></span></span>
+                <span class="marquee-item">Build your team <span class="marquee-dot"></span></span>
+                <span class="marquee-item">Run amazing events <span class="marquee-dot"></span></span>
+                <span class="marquee-item">No spreadsheets <span class="marquee-dot"></span></span>
+                <span class="marquee-item">No WhatsApp chaos <span class="marquee-dot"></span></span>
+                <span class="marquee-item">Post an event <span class="marquee-dot"></span></span>
+                <span class="marquee-item">Collect applications <span class="marquee-dot"></span></span>
+                <span class="marquee-item">Build your team <span class="marquee-dot"></span></span>
+                <span class="marquee-item">Run amazing events <span class="marquee-dot"></span></span>
+                <span class="marquee-item">No spreadsheets <span class="marquee-dot"></span></span>
+                <span class="marquee-item">No WhatsApp chaos <span class="marquee-dot"></span></span>
+            </div>
+        </div>
+
+        <section id="how" aria-labelledby="how-heading">
+            <div class="how-left">
+                <h2 id="how-heading" class="how-title reveal reveal-delay-1">
+                    Simple enough<br />to start <em>today.</em>
+                </h2>
+                <p class="how-desc reveal reveal-delay-2">
+                    No onboarding calls. No setup fees. Just post your event and let volunteers come to you.
+                </p>
+                <div class="how-photo reveal reveal-delay-3">
+                    <img src="https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=900&q=80&auto=format&fit=crop&crop=faces" alt="Volunteers coordinating at an event" loading="lazy" />
+                    <div class="how-photo-caption"></div>
                 </div>
             </div>
-        </header>
-
-        <section class="about-section text-center" id="about">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5 justify-content-center mb-4">
-                    <div class="col-lg-8">
-                        <div class="section-kicker text-primary">How it works</div>
-                        <h2 class="text-white mb-4">A clear path from discovery to your next event.</h2>
-                        <p class="text-white-50 mb-0">Staffly keeps event details easy to scan, applications simple to submit, and every interaction focused on professionalism.</p>
+            <div class="how-right">
+                <div class="step reveal">
+                    <div class="step-num">01</div>
+                    <div class="step-body">
+                        <div class="step-title">List your event</div>
+                        <div class="step-desc">Name, date, location, roles needed. Takes under three minutes. Your event goes live immediately to thousands of volunteers.</div>
+                        <span class="step-tag">Organisers</span>
                     </div>
                 </div>
-
-                <div class="row gx-4 gx-lg-5 justify-content-center mt-5">
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="step-card">
-                            <div class="step-number">1</div>
-                            <h4 class="text-white mt-4 mb-3">Discover roles</h4>
-                            <p class="text-white-50">Browse live event listings with location, date, role type, and compensation details upfront.</p>
-                            <div class="step-icon mt-4"></div>
-                        </div>
+                <div class="step reveal reveal-delay-1">
+                    <div class="step-num">02</div>
+                    <div class="step-body">
+                        <div class="step-title">Volunteers discover &amp; apply</div>
+                        <div class="step-desc">Volunteers browse events by category, location, and date. One-tap applications with full profiles - skills, experience, past events.</div>
+                        <span class="step-tag">Volunteers</span>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="step-card">
-                            <div class="step-number">2</div>
-                            <h4 class="text-white mt-4 mb-3">Apply in minutes</h4>
-                            <p class="text-white-50">Submit your profile once, review your application status, and get matched faster with relevant events.</p>
-                            <div class="step-icon mt-4"></div>
-                        </div>
+                </div>
+                <div class="step reveal reveal-delay-2">
+                    <div class="step-num">03</div>
+                    <div class="step-body">
+                        <div class="step-title">Review, accept, coordinate</div>
+                        <div class="step-desc">Your dashboard shows every applicant. Accept or decline with one click. Message your team. Track who's confirmed.</div>
+                        <span class="step-tag">Organisers</span>
                     </div>
-                    <div class="col-lg-4 col-md-6 mb-4">
-                        <div class="step-card">
-                            <div class="step-number">3</div>
-                            <h4 class="text-white mt-4 mb-3">Show up ready</h4>
-                            <p class="text-white-50">Get clear instructions, show up prepared, and leave with experience that strengthens your profile.</p>
-                            <div class="step-icon mt-4"></div>
-                        </div>
+                </div>
+                <div class="step reveal reveal-delay-3">
+                    <div class="step-num">04</div>
+                    <div class="step-body">
+                        <div class="step-title">Show up. Create impact.</div>
+                        <div class="step-desc">Volunteers attend, log hours, and build a verified profile. Organisers rate the team. Everyone grows.</div>
+                        <span class="step-tag">Everyone</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="benefits-section" id="benefits">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5 justify-content-center mb-5">
-                    <div class="col-lg-8 text-center">
-                        <div class="section-kicker text-primary">Why Staffly</div>
-                        <h2>Built for volunteers who want a cleaner, more credible experience.</h2>
-                        <p class="section-lead text-black-50 mb-0">Staffly keeps opportunities easy to trust, easy to understand, and easy to act on.</p>
+        <section id="feature" aria-labelledby="feature-heading">
+            <div class="feature-left">
+                <div>
+                    <div class="section-label reveal">Built different</div>
+                    <h2 id="feature-heading" class="feature-title reveal reveal-delay-1">
+                        The platform<br />your events<br /><em>actually need.</em>
+                    </h2>
+                </div>
+                <div class="feature-photo-grid" aria-hidden="true">
+                    <div class="fpg-main">
+                        <img src="https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=700&q=80&auto=format&fit=crop&crop=center" alt="Event crowd" loading="lazy" />
+                    </div>
+                    <div class="fpg-side">
+                        <div class="fpg-small">
+                            <img src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&q=80&auto=format&fit=crop&crop=faces" alt="Event volunteers" loading="lazy" />
+                        </div>
                     </div>
                 </div>
-
-                <div class="row g-4">
-                    <div class="col-lg-3 col-md-6">
-                        <div class="benefit-card">
-                            <div class="benefit-icon"></div>
-                            <h4>Verified opportunities</h4>
-                            <p>Curated events with clear roles, dates, and expectations.</p>
-                        </div>
+            </div>
+            <div class="feature-right">
+                <div class="feat-item reveal">
+                    <div>
+                        <div class="feat-text-title">Role-based listings</div>
+                        <div class="feat-text-desc">Post specific roles - photographers, registration staff, MCs, medics. Volunteers apply to exactly what fits them.</div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="benefit-card">
-                            <div class="benefit-icon"></div>
-                            <h4>Faster onboarding</h4>
-                            <p>Simple application steps that help people get started quickly.</p>
-                        </div>
+                </div>
+                <div class="feat-item reveal reveal-delay-1">
+                    <div>
+                        <div class="feat-text-title">Instant applications</div>
+                        <div class="feat-text-desc">Volunteers apply in one tap with a pre-built profile. No forms to fill every time. You see everything you need, instantly.</div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="benefit-card">
-                            <div class="benefit-icon"></div>
-                            <h4>Featured event cards</h4>
-                            <p>Clear photos, dates, and spot counts that help people browse opportunities quickly.</p>
-                        </div>
+                </div>
+                <div class="feat-item reveal reveal-delay-2">
+                    <div>
+                        <div class="feat-text-title">Built-in coordination</div>
+                        <div class="feat-text-desc">Message accepted volunteers directly. Send updates, reminders, and logistics - all in one thread, not 12 WhatsApp groups.</div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="benefit-card">
-                            <div class="benefit-icon"></div>
-                            <h4>Application confidence</h4>
-                            <p>Simple signup, clear profile details, and a smoother path from interest to approval.</p>
-                        </div>
+                </div>
+                <div class="feat-item reveal reveal-delay-3">
+                    <div>
+                        <div class="feat-text-title">Track everything</div>
+                        <div class="feat-text-desc">Fill rate, hours logged, repeat volunteers - your dashboard shows what's working so every event runs better than the last.</div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="featured-section" id="featured">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5 justify-content-center mb-5">
-                    <div class="col-lg-8 text-center">
-                        <div class="section-kicker text-primary">Featured opportunities</div>
-                        <h2>Explore featured opportunities.</h2>
-                        <p class="section-lead text-black-50 mb-0">Browse a curated set of event roles, live experiences, and volunteer-friendly opportunities.</p>
+        <section id="voices" aria-labelledby="voices-heading">
+            <div class="voices-header">
+                <h2 id="voices-heading" class="voices-title reveal">
+                    Real people.<br /><em>Real events.</em>
+                </h2>
+                <div class="voices-count reveal reveal-delay-1"></div>
+            </div>
+            <div class="voices-scroll" role="list">
+                <div class="voice reveal" role="listitem">
+                    <div class="voice-quote">"We filled 30 volunteer spots in under 48 hours. That used to take two weeks of DMs."</div>
+                    <div class="voice-meta">
+                        <span class="voice-name">Arjun Mehta</span>
+                        <span class="voice-role">Founder, Green City Run - Ludhiana</span>
                     </div>
                 </div>
-
-                <div class="row g-4">
-                    <div class="col-lg-4 col-md-6">
-                        <article class="opportunity-card">
-                            <img src="https://dailypioneer.com/uploads/2026/story/images/big/karan-aujla---s-show--india---s-2nd-biggest-concert-2026-03-02.jpg" alt="Live concert event" />
-                            <div class="opportunity-body">
-                                <div class="opportunity-meta">Music Event • New Delhi</div>
-                                <h4>Concert Support Crew</h4>
-                                <p>Assist with guest flow, venue coordination, and crowd support during a major live show.</p>
-                                <div class="opportunity-footer"><span>Event details</span></div>
-                            </div>
-                        </article>
+                <div class="voice reveal reveal-delay-1" role="listitem">
+                    <div class="voice-quote">"I used to dread coordinating volunteers. Staffly made it something I actually look forward to."</div>
+                    <div class="voice-meta">
+                        <span class="voice-name">Priya Nair</span>
+                        <span class="voice-role">Event Director, ArtsFest - Chandigarh</span>
                     </div>
-                    <div class="col-lg-4 col-md-6">
-                        <article class="opportunity-card">
-                            <img src="https://img-cdn.publive.online/fit-in/640x430/filters:format(webp)/vnd/media/media_files/2026/02/16/india-ai-impact-summit-day1-chaos-2026-02-16-17-44-41.png" alt="Summit event" />
-                            <div class="opportunity-body">
-                                <div class="opportunity-meta">Conference • Bengaluru</div>
-                                <h4>Summit Operations Team</h4>
-                                <p>Help with registration, speaker coordination, and smooth attendee check-in at a large conference.</p>
-                                <div class="opportunity-footer"><span>Event details</span></div>
-                            </div>
-                        </article>
+                </div>
+                <div class="voice reveal reveal-delay-2" role="listitem">
+                    <div class="voice-quote">"As a volunteer, having one profile that works across every event is a game changer."</div>
+                    <div class="voice-meta">
+                        <span class="voice-name">Tanvir Singh</span>
+                        <span class="voice-role">Volunteer, 14 events completed</span>
                     </div>
-                    <div class="col-lg-4 col-md-6">
-                        <article class="opportunity-card">
-                            <img src="https://musicalsatans.com/wp-content/uploads/2025/02/IMG_20250228_235431.jpg" alt="Event showcase" />
-                            <div class="opportunity-body">
-                                <div class="opportunity-meta">Premium Event • Mumbai</div>
-                                <h4>Brand Activation Crew</h4>
-                                <p>Support an event activation with structured tasks, clear roles, and polished on-site execution.</p>
-                                <div class="opportunity-footer"><span>Event details</span></div>
-                            </div>
-                        </article>
+                </div>
+                <div class="voice reveal reveal-delay-3" role="listitem">
+                    <div class="voice-quote">"Our health camp had 200 attendees. Every role was staffed. First time that's ever happened."</div>
+                    <div class="voice-meta">
+                        <span class="voice-name">Dr. Kavita Sharma</span>
+                        <span class="voice-role">HealthFirst NGO - Amritsar</span>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section class="testimonials-section">
-            <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5 justify-content-center mb-5">
-                    <div class="col-lg-8 text-center">
-                        <div class="section-kicker text-primary">Social proof</div>
-                        <h2>What people say about the experience.</h2>
-                        <p class="section-lead text-black-50 mb-0">Trusted feedback from volunteers and event teams can go here once you start collecting it.</p>
-                    </div>
+        <section id="cta-section" aria-labelledby="cta-heading" style="display: none;">
+            <div class="cta-left">
+                <div class="cta-eyebrow reveal">Ready to staff up?</div>
+                <h2 id="cta-heading" class="cta-title reveal reveal-delay-1">
+                    Your next event<br />starts <em>here.</em>
+                </h2>
+                <p class="cta-sub reveal reveal-delay-2">
+                    Free to join. No credit card. Your first event goes live in minutes - not days.
+                </p>
+            </div>
+            <div class="cta-right reveal reveal-delay-1">
+                <div class="cta-email-row">
+                    <input type="email" placeholder="your@email.com" aria-label="Email address" />
+                    <button type="button">Get started -&gt;</button>
                 </div>
-
-                <div class="row g-4">
-                    <div class="col-lg-4">
-                        <div class="testimonial-card">
-                            <p>“The platform is clean, fast, and easy to navigate. I could understand the event flow right away.”</p>
-                            <div class="testimonial-author">Aarav, volunteer applicant</div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="testimonial-card">
-                            <p>“The event cards and layout make the site feel organized and professional from the first scroll.”</p>
-                            <div class="testimonial-author">Nisha, event coordinator</div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4">
-                        <div class="testimonial-card">
-                            <p>“The signup path feels focused and the call to action is clear without being overwhelming.”</p>
-                            <div class="testimonial-author">Rohit, product reviewer</div>
-                        </div>
-                    </div>
+                <div class="cta-note">Free forever for volunteers. Free to post your first event.</div>
+                <div class="cta-choice">
+                    <a href="#" class="choice-btn choice-organiser">
+                        <div class="choice-label">Organiser</div>
+                        <div class="choice-sub">Post events &amp; find volunteers</div>
+                    </a>
+                    <a href="#" class="choice-btn choice-volunteer">
+                        <div class="choice-label">Volunteer</div>
+                        <div class="choice-sub">Discover events near you</div>
+                    </a>
                 </div>
             </div>
         </section>
@@ -290,61 +337,32 @@
 
         <section class="contact-section bg-black" id="contact">
             <div class="container px-4 px-lg-5">
-                <div class="row gx-4 gx-lg-5 justify-content-center mb-5">
-                    <div class="col-lg-8 text-center">
-                        <div class="section-kicker text-primary">Contact</div>
-                        <h2 class="text-white">Make it easy for people to trust and reach you.</h2>
-                        <p class="text-white-50 mb-0">Clear contact details and polished support information improve credibility fast.</p>
+                <div class="contact-shell">
+                    <div class="contact-copy">
+                        <span>CONNECT</span>
+                        <h2>CONTACT US</h2>
+                        <p>Are you interested in volunteering with one of the opportunities we offer, or do you have a question you have not found the answer to? Contact us. We look forward to getting to know you and your project better.</p>
                     </div>
-                </div>
-                <div class="row gx-4 gx-lg-5">
-                    <div class="col-md-4 mb-3 mb-md-0">
-                        <div class="card py-4 h-100 contact-card">
-                            <div class="card-body text-center">
-                                
-                                <h4 class="text-uppercase m-0">Address</h4>
-                                <hr class="my-4 mx-auto" />
-                                <div class="small text-black-50">University School of Automation & Robotics, Guru Gobind Singh Indraprastha University East Delhi Campus, Surajmal Vihar, Shahdara, Delhi - 110032</div>
-                            </div>
+
+                    <div class="contact-panel">
+                        <div class="contact-item">
+                            <div class="contact-label">E-MAIL</div>
+                            <a href="mailto:HiredInnn@gmail.com">HiredInnn@gmail.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-label">PHONE</div>
+                            <a href="tel:+917017716608">(+91) 70177 16608</a>
+                        </div>
+                        <div class="contact-item">
+                            <div class="contact-label">ADDRESS</div>
+                            <p>University School of Automation & Robotics, Guru Gobind Singh Indraprastha University East Delhi Campus, Surajmal Vihar, Shahdara, Delhi - 110032</p>
+                        </div>
+                        <div class="contact-socials">
+                            <a href="https://www.instagram.com/stafflyyyyyy/?__pwa=1#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram"><i class="fa-brands fa-instagram" aria-hidden="true"></i></a>
+                            <a href="#!" aria-label="Twitter" title="Twitter"><i class="fa-brands fa-twitter" aria-hidden="true"></i></a>
+                            <a href="#!" aria-label="Facebook" title="Facebook"><i class="fa-brands fa-facebook-f" aria-hidden="true"></i></a>
                         </div>
                     </div>
-                    <div class="col-md-4 mb-3 mb-md-0">
-                        <div class="card py-4 h-100 contact-card">
-                            <div class="card-body text-center">
-                                
-                                <h4 class="text-uppercase m-0">Email</h4>
-                                <hr class="my-4 mx-auto" />
-                                <div class="small text-black-50"><a href="mailto:HiredInnn@gmail.com">HiredInnn@gmail.com</a></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3 mb-md-0">
-                        <div class="card py-4 h-100 contact-card">
-                            <div class="card-body text-center">
-                                
-                                <h4 class="text-uppercase m-0">Phone</h4>
-                                <hr class="my-4 mx-auto" />
-                                <div class="small text-black-50"><a href="tel:+917017716608">+91 70177 16608</a></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="social d-flex justify-content-center">
-                    <a class="mx-2" href="#!" aria-label="Twitter" title="Twitter">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.3 4.3 0 0 0 1.88-2.37 8.6 8.6 0 0 1-2.72 1.04 4.28 4.28 0 0 0-7.29 3.9A12.15 12.15 0 0 1 3.15 4.6a4.28 4.28 0 0 0 1.33 5.72 4.23 4.23 0 0 1-1.94-.54v.05a4.28 4.28 0 0 0 3.43 4.19 4.3 4.3 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.97A8.6 8.6 0 0 1 2 19.54a12.13 12.13 0 0 0 6.56 1.92c7.88 0 12.2-6.53 12.2-12.2v-.56A8.7 8.7 0 0 0 22.46 6z"/>
-                        </svg>
-                    </a>
-                    <a class="mx-2" href="#!" aria-label="Facebook" title="Facebook">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2.1v-2.9h2.1V9.5c0-2.1 1.3-3.2 3.1-3.2.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2v1.5h2.3l-.4 2.9h-1.9v7A10 10 0 0 0 22 12z"/>
-                        </svg>
-                    </a>
-                    <a class="mx-2" href="https://www.instagram.com/stafflyyyyyy/?__pwa=1#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm5 5.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5zm5.2-.9a1.1 1.1 0 1 1-1.1-1.1 1.1 1.1 0 0 1 1.1 1.1zM12 9a3 3 0 1 0 3 3 3 3 0 0 0-3-3z"/>
-                        </svg>
-                    </a>
                 </div>
             </div>
         </section>
@@ -354,7 +372,33 @@
         </footer>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
         <script src="js/scripts.js"></script>
         <script src="js/index.js"></script>
+        <script>
+            // Custom cursor removed; keep default system cursor
+
+            const navBar = document.getElementById('mainNav');
+            window.addEventListener(
+                'scroll',
+                () => {
+                    if (!navBar) return;
+                    navBar.classList.toggle('scrolled', window.scrollY > 40);
+                },
+                { passive: true }
+            );
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) entry.target.classList.add('visible');
+                    });
+                },
+                { threshold: 0.12 }
+            );
+            document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+            // Static stats displayed; remove animated count-up to keep numbers simple
+        </script>
     </body>
 </html>
