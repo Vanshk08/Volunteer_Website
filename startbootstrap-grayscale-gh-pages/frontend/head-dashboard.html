@@ -48,18 +48,16 @@ body {
   min-height: 100vh;
 }
 
-/* ── CUSTOM CURSOR ── */
-#cursor {
-  position: fixed; width: 10px; height: 10px;
-  background: var(--green); border-radius: 50%;
-  pointer-events: none; z-index: 9999;
-  transform: translate(-50%,-50%);
-  transition: width .2s, height .2s;
-  mix-blend-mode: difference;
-  cursor: none;
+/* ── CURSOR ── */
+body { cursor: default; }
+
+/* Digits: make numbers use tabular (fixed-width) figures for better alignment. */
+/* Keep it simple: enable tabular numbers globally and use a monospace fallback for key numeric elements. */
+body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum" 1; font-feature-settings: "tnum" 1; }
+.sum-val, .nav-badge, .summary-strip .sum-val, .tab-count, .assigned-grid, .cards-list .card-meta span, .modal-item-meta span {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Courier New', monospace;
+  font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum" 1; font-feature-settings: "tnum" 1;
 }
-#cursor.big { width: 36px; height: 36px; }
-body { cursor: none; }
 
 /* ── LAYOUT ── */
 .app { display: flex; min-height: 100vh; }
@@ -103,7 +101,7 @@ body { cursor: none; }
   display: flex; align-items: center; gap: 10px;
   padding: 9px 12px; border-radius: var(--radius);
   font-size: 13px; color: var(--muted3);
-  cursor: none; transition: all .18s;
+  cursor: default; transition: all .18s;
   border: 1px solid transparent;
   margin-bottom: 2px; position: relative;
   text-decoration: none;
@@ -114,6 +112,7 @@ body { cursor: none; }
   border-color: rgba(29,255,143,0.15);
 }
 .nav-item .icon { width: 16px; text-align: center; font-size: 15px; flex-shrink: 0; }
+.nav-plus { margin-left:8px; background:var(--green); border-radius:6px; color:var(--black); border:none; width:28px; height:20px; font-weight:700; cursor:pointer }
 .nav-badge {
   margin-left: auto; background: var(--green); color: var(--black);
   font-size: 10px; font-weight: 600; padding: 1px 7px; border-radius: 20px;
@@ -164,7 +163,7 @@ body { cursor: none; }
   background: none; border: 1px solid var(--border);
   color: var(--muted3); font-family: var(--sans);
   font-size: 12px; padding: 6px 14px; border-radius: 20px;
-  cursor: none; transition: all .18s; display: flex; align-items: center; gap: 6px;
+  cursor: default; transition: all .18s; display: flex; align-items: center; gap: 6px;
 }
 .topbar-btn:hover { border-color: var(--border2); color: var(--white); }
 .topbar-btn.primary {
@@ -177,6 +176,47 @@ body { cursor: none; }
 
 /* ── CONTENT ── */
 .content { flex: 1; padding: 28px 32px; }
+
+/* Ensure modals and lists appear above the fixed sidebar */
+.content, .cards-list, .assigned-grid { position: relative; z-index: 0; }
+.sidebar-overlay { z-index: 60; }
+
+/* Modal overlay and dialog should sit above everything */
+.modal-overlay { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(8,8,8,0.66); backdrop-filter: blur(14px); z-index: 9999; }
+.modal-overlay.open { display: flex; }
+.modal { position: relative; background: linear-gradient(180deg, rgba(24,24,24,0.98), rgba(14,14,14,0.98)); border: 1px solid var(--border2); padding: 22px; border-radius: 20px; width: min(1040px, 94%); max-height: 88vh; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.72); }
+.modal::before {
+  content: ''; position: absolute; inset: 0 0 auto 0; height: 3px;
+  background: linear-gradient(90deg, transparent, var(--green), transparent);
+}
+.modal-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+.modal-title { font-family: var(--serif); font-size: 28px; line-height: 1; letter-spacing: -.4px; color: var(--white); }
+.modal-sub { font-size: 12px; color: var(--muted2); margin-top: 6px; }
+.modal-close { background: var(--surface2); border: 1px solid var(--border); color: var(--white); border-radius: 999px; padding: 9px 14px; font-family: var(--sans); font-size: 12px; cursor: pointer; }
+.modal-close:hover { border-color: var(--border2); background: var(--surface3); }
+.modal-search { margin-bottom: 14px; }
+.modal-search input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; font-family: var(--sans); font-size: 13px; color: var(--white); outline: none;
+}
+.modal-search input::placeholder { color: var(--muted2); }
+.modal-search input:focus { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(29,255,143,0.08); }
+.modal-list { display:block; max-height: 58vh; overflow:auto; padding-right: 4px; }
+.modal-item-actions { display: none; }
+.modal-item {
+  display: flex; align-items: center; gap: 14px; padding: 14px 15px;
+  border: 1px solid var(--border); border-radius: 16px; background: var(--surface);
+  margin-bottom: 10px; transition: all .18s ease; cursor: pointer;
+}
+.modal-item:hover { border-color: var(--border2); background: var(--surface2); transform: translateY(-1px); }
+.modal-item.selected { border-color: rgba(29,255,143,0.35); background: linear-gradient(180deg, rgba(29,255,143,0.08), rgba(24,24,24,0.98)); box-shadow: 0 0 0 1px rgba(29,255,143,0.12) inset; }
+.modal-item-body { min-width: 0; flex: 1; }
+.modal-item-name { font-size: 15px; font-weight: 500; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.modal-item-meta { margin-top: 4px; font-size: 12px; color: var(--muted3); display: flex; flex-wrap: wrap; gap: 8px; }
+.modal-item-pill {
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--green);
+  background: var(--green-dim); border: 1px solid rgba(29,255,143,0.18); border-radius: 999px; padding: 4px 8px; white-space: nowrap;
+}
 
 /* ── SUMMARY STRIP ── */
 .summary-strip {
@@ -219,7 +259,7 @@ body { cursor: none; }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
   padding: 10px 20px; font-size: 13px; color: var(--muted2);
-  cursor: none; border-bottom: 2px solid transparent;
+  cursor: default; border-bottom: 2px solid transparent;
   transition: all .18s; white-space: nowrap; display: flex;
   align-items: center; gap: 8px; margin-bottom: -1px;
   background: none; border-top: none; border-left: none; border-right: none;
@@ -266,7 +306,7 @@ body { cursor: none; }
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 8px; padding: 9px 12px;
   font-family: var(--sans); font-size: 12px; color: var(--muted3);
-  outline: none; cursor: none; min-width: 120px;
+  outline: none; cursor: default; min-width: 120px;
 }
 
 /* ── APPLICATION CARDS ── */
@@ -286,5 +326,910 @@ body { cursor: none; }
 .app-card.waitlisted { border-left: 3px solid var(--amber); }
 .app-card.supervisor { border-left: 3px solid var(--blue); }
 .app-card.organiser  { border-left: 3px solid #c084fc; }
+.card-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: var(--surface2); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 13px; font-weight: 600; letter-spacing: .5px;
+  color: var(--white);
+}
+.card-info { min-width: 0; flex: 1; }
+.card-name {
+  font-size: 15px; line-height: 1.2; font-weight: 500; color: var(--white);
+  margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-meta {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  font-size: 12px; line-height: 1.35; color: var(--muted3);
+}
+.card-rating { color: var(--white); font-weight: 500; letter-spacing: .2px; }
+.card-right {
+  margin-left: auto; display: flex; align-items: center; gap: 10px; position: relative;
+}
+.status-badge {
+  font-size: 11px; line-height: 1; padding: 7px 10px; border-radius: 999px;
+  background: var(--surface2); color: var(--muted3); border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.status-badge.pending { color: var(--muted3); }
+.status-badge.accepted { color: var(--green); background: var(--green-dim); border-color: rgba(29,255,143,.18); }
+.status-badge.rejected { color: var(--red); background: var(--red-dim); border-color: rgba(255,77,77,.18); }
+.status-badge.waitlisted { color: var(--amber); background: var(--amber-dim); border-color: rgba(245,166,35,.18); }
+.menu-wrap { position: relative; }
+.three-dot {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--white); font-size: 20px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center; cursor: default;
+}
+.three-dot:hover { border-color: var(--border2); background: var(--surface3); }
+.dropdown {
+  position: absolute; right: 0; top: calc(100% + 8px); min-width: 140px;
+  padding: 6px; background: var(--surface); border: 1px solid var(--border2);
+  border-radius: 12px; box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  display: none; z-index: 20;
+}
+.dropdown.open { display: block; }
+.dd-item {
+  width: 100%; display: flex; align-items: center; gap: 8px;
+  padding: 9px 10px; border: 0; border-radius: 8px; background: transparent;
+  color: var(--white); font: inherit; font-size: 12px; text-align: left;
+}
+.dd-item:hover { background: var(--surface2); }
+.dd-item.accept { color: var(--green); }
+.dd-item.reject { color: var(--red); }
+.dd-item.waitlist { color: var(--amber); }
+.dd-item.disabled { opacity: .5; pointer-events: none; }
+.panel { display: none; }
+.panel.active { display: block; }
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: 0 0 16px;
+}
+.panel-title { font-family: var(--serif); font-size: 24px; }
+.panel-sub { font-size: 12px; color: var(--muted2); margin-top: 4px; }
+.panel-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.section-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 18px; margin-bottom: 16px;
+}
+.section-card-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 12px;
+}
+.section-card-title { font-size: 13px; font-weight: 500; }
+.section-card-sub { font-size: 12px; color: var(--muted2); margin-top: 2px; }
+.progress {
+  width: 100%; height: 8px; background: var(--surface2); border-radius: 999px; overflow: hidden;
+}
+.progress-bar { height: 100%; width: 0; background: var(--green); border-radius: inherit; }
+.assigned-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); gap: 10px; }
+.assigned-chip {
+  display: flex; align-items: center; gap: 10px; padding: 12px;
+  border: 1px solid var(--border); border-radius: 14px; background: var(--surface2);
+}
+.assigned-add {
+  display:flex; align-items:center; justify-content:center; padding:12px; border-radius:14px;
+  border: 1px dashed var(--border); background: transparent; cursor: pointer; min-height:64px;
+}
+.add-plus { width:40px; height:40px; border-radius:50%; background:var(--green); color:var(--black); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:20px }
+.chip-avatar {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--green-dim);
+  border: 1px solid var(--green-mid); display: flex; align-items: center; justify-content: center;
+  color: var(--green); font-size: 12px; font-weight: 600; flex-shrink: 0;
+}
+.chip-name { font-size: 13px; font-weight: 500; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip-sub { font-size: 11px; color: var(--muted2); }
+.chip-remove {
+  border: 1px solid var(--border); background: transparent; color: var(--muted3);
+  border-radius: 999px; padding: 6px 10px; font-size: 11px;
+}
+.empty {
+  padding: 28px 16px; text-align: center; color: var(--muted2); font-size: 13px;
+  border: 1px dashed var(--border); border-radius: 14px; background: rgba(255,255,255,0.01);
+}
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
 
-... (file continues unchanged)
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ROLE GUARD (shown if volunteer tries to access) -->
+<div class="role-guard hidden" id="roleGuard">
+  <div class="guard-title">Access Denied</div>
+  <div class="guard-sub">This dashboard is only accessible to Heads. Your current role is <strong>Volunteer</strong>.</div>
+  <button class="guard-btn" onclick="document.getElementById('roleGuard').classList.add('hidden')">Go to Volunteer Dashboard</button>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <a href="#" class="sidebar-logo">Staff<em>ly</em></a>
+    <div class="sidebar-event">
+      <div class="sidebar-event-label">Current Event</div>
+      <div class="sidebar-event-name">Green City Marathon 2026</div>
+      <div class="sidebar-event-date">12 Jun 2026, Ludhiana</div>
+    </div>
+    <nav class="sidebar-nav">
+      <span class="nav-group-label">Dashboard</span>
+      <a href="#" class="nav-item active" onclick="switchTab('applications',this)">
+        Applications
+      </a>
+      <a href="#" class="nav-item" onclick="switchTab('accepted',this)">
+        Accepted
+      </a>
+      <a href="#" class="nav-item" onclick="switchTab('supervisors',this)">
+        Supervisors
+      </a>
+      <a href="#" class="nav-item" onclick="switchTab('organisers',this)">
+        Organisers
+      </a>
+      <a href="#" class="nav-item" onclick="switchTab('waitlist',this)">
+        Waitlist
+      </a>
+      <!-- Event group removed: Analytics / Messages / Settings -->
+    </nav>
+    <div class="sidebar-footer">
+      <div class="avatar-sm">RK</div>
+      <div>
+        <div class="footer-name">Rahul Kumar</div>
+        <div class="footer-role"><span class="role-dot"></span> Head</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="breadcrumb">Staffly <span>/</span> <span id="topbar-title-txt">Applications</span></div>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn primary">Export CSV</button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- SUMMARY STRIP -->
+      <div class="summary-strip">
+        <div class="sum-item green">
+          <div class="sum-val green" id="s-total">240</div>
+          <div class="sum-label">Applications</div>
+          <div class="sum-sub">Pending review</div>
+        </div>
+        <div class="sum-item green">
+          <div class="sum-val green" id="s-accepted">0</div>
+          <div class="sum-label">Accepted</div>
+          <div class="sum-sub">Target: 115</div>
+        </div>
+        <div class="sum-item amber">
+          <div class="sum-val amber" id="s-waitlisted">0</div>
+          <div class="sum-label">Waitlisted</div>
+          <div class="sum-sub">On hold</div>
+        </div>
+        <div class="sum-item blue">
+          <div class="sum-val blue" id="s-sup">0<small style="font-size:.5em">/10</small></div>
+          <div class="sum-label">Supervisors</div>
+          <div class="sum-sub">Assigned</div>
+        </div>
+        <div class="sum-item" style="--accent:#c084fc">
+          <div class="sum-val" id="s-org" style="color:#c084fc">0<small style="font-size:.5em">/5</small></div>
+          <div class="sum-label">Organisers</div>
+          <div class="sum-sub">Assigned</div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs" role="tablist">
+        <button class="tab active" role="tab" id="tab-applications" onclick="switchTab('applications',this)">
+          Applications <span class="tab-count" id="tc-apps">240</span>
+        </button>
+        <button class="tab" role="tab" id="tab-accepted" onclick="switchTab('accepted',this)">
+          Accepted <span class="tab-count" id="tc-acc">0</span>
+        </button>
+        <button class="tab" role="tab" id="tab-supervisors" onclick="switchTab('supervisors',this)">
+          Supervisors <span class="tab-count" id="tc-sup">0/10</span>
+        </button>
+        <button class="tab" role="tab" id="tab-organisers" onclick="switchTab('organisers',this)">
+          Organisers <span class="tab-count" id="tc-org">0/5</span>
+        </button>
+        <button class="tab" role="tab" id="tab-waitlist" onclick="switchTab('waitlist',this)">
+          Waitlist <span class="tab-count" id="tc-wait">0</span>
+        </button>
+      </div>
+
+      <!-- ═══════════ APPLICATIONS PANEL ═══════════ -->
+      <div id="panel-applications" class="panel active">
+        <div class="filter-bar">
+          <div class="search-wrap">
+            <span class="search-icon"></span>
+            <input type="text" placeholder="Search by name..." oninput="filterCards()" id="app-search">
+          </div>
+          <select class="filter-select" onchange="filterCards()" id="app-status-filter">
+            <option value="all">All status</option>
+            <option value="pending">Pending</option>
+            <option value="accepted">Accepted</option>
+            <option value="rejected">Rejected</option>
+            <option value="waitlisted">Waitlisted</option>
+          </select>
+        </div>
+        <div class="cards-list" id="app-list"></div>
+      </div>
+
+      <div id="panel-accepted" class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Accepted</div>
+            <div class="panel-sub" id="acc-sub">0 / 115 accepted — 115 more needed</div>
+          </div>
+          <div class="panel-actions">
+            <div class="progress" style="width:220px"><div class="progress-bar" id="acc-progress"></div></div>
+            <input id="acc-search" class="filter-select" type="text" placeholder="Search accepted..." oninput="filterAccepted()" style="min-width:180px">
+          </div>
+        </div>
+        <div class="cards-list" id="acc-list"></div>
+      </div>
+
+      <div id="panel-supervisors" class="panel">
+        <div class="section-card">
+          <div class="section-card-header">
+            <div>
+              <div class="section-card-title">Supervisors</div>
+              <div class="section-card-sub">Assigned from accepted volunteers</div>
+            </div>
+            <div class="panel-actions">
+              <div class="progress" style="width:220px"><div class="progress-bar" id="sup-progress"></div></div>
+              <button class="topbar-btn primary" id="sup-plus-btn" onclick="openModal('supervisor')">Assign</button>
+            </div>
+          </div>
+          <div class="section-card-sub" style="margin-bottom:10px">Selected: <strong id="sup-count">0</strong>/10</div>
+          <div id="sup-empty" class="empty">No supervisors assigned yet.</div>
+          <div class="assigned-grid" id="sup-grid"></div>
+        </div>
+      </div>
+
+      <div id="panel-organisers" class="panel">
+        <div class="section-card">
+          <div class="section-card-header">
+            <div>
+              <div class="section-card-title">Organisers</div>
+              <div class="section-card-sub">Assigned from accepted volunteers</div>
+            </div>
+            <div class="panel-actions">
+              <div class="progress" style="width:220px"><div class="progress-bar" id="org-progress"></div></div>
+              <button class="topbar-btn primary" id="org-plus-btn" onclick="openModal('organiser')">Assign</button>
+            </div>
+          </div>
+          <div class="section-card-sub" style="margin-bottom:10px">Selected: <strong id="org-count">0</strong>/5</div>
+          <div id="org-empty" class="empty">No organisers assigned yet.</div>
+          <div class="assigned-grid" id="org-grid"></div>
+        </div>
+      </div>
+
+      <div id="panel-waitlist" class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Waitlist</div>
+            <div class="panel-sub">Applicants on hold</div>
+          </div>
+          <div class="panel-actions">
+            <input id="wait-search" class="filter-select" type="text" placeholder="Search waitlist..." oninput="filterWaitlist()" style="min-width:180px">
+            <button class="topbar-btn" onclick="promoteFirst()">Promote first</button>
+          </div>
+        </div>
+        <div class="cards-list" id="wait-list"></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ASSIGN MODAL -->
+<div class="modal-overlay" id="modal-overlay" onclick="maybeCloseModal(event)">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modal-title">Assign Supervisors</div>
+        <div class="modal-sub" id="modal-sub">Select up to 10 from accepted volunteers</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">Close</button>
+    </div>
+    <div class="modal-search">
+      <input type="text" id="modal-search" placeholder="Search volunteers..." oninput="filterModal()">
+    </div>
+    <div class="modal-list" id="modal-list"></div>
+    <div class="modal-foot">
+      <div class="modal-selection-count">Selected: <strong id="modal-sel-count">0</strong></div>
+      <button class="btn-confirm" id="modal-confirm" onclick="confirmAssign()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-dot" id="toast-dot"></div>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ── STATE ──
+const AVATARS = ['', '', '', '', '', '', '', '', '', ''];
+const NAMES = ['Amandeep Kaur','Rohan Sharma','Priya Nair','Tanvir Singh','Manpreet Kaur',
+  'Arjun Mehta','Sakshi Verma','Karan Bhatia','Neha Gupta','Rajveer Singh',
+  'Divya Patel','Mohit Yadav','Anjali Tiwari','Simran Dhaliwal','Harpreet Gill',
+  'Vipul Sharma','Kavita Reddy','Nikhil Joshi','Sunita Rangi','Akash Malhotra',
+  'Pooja Mehta','Rishabh Nair','Sanjana Bose','Vivek Kumar','Deepika Arora'];
+
+let apps = [], accepted = [], waitlisted = [], supervisors = [], organisers = [];
+let modalMode = '', modalSelected = new Set();
+let modalSource = 'accepted';
+let openDropdown = null;
+let currentTab = 'applications';
+const HEAD_DASHBOARD_STORAGE_KEY = 'stafflyHeadDashboardState';
+const ACCEPT_TARGET = 115; // maximum accepted volunteers
+
+// Generate mock applications
+function genApps(n) {
+  const result = [];
+  for (let i = 0; i < n; i++) {
+    const name = NAMES[i % NAMES.length] + (i >= NAMES.length ? ` ${Math.floor(i/NAMES.length)+1}` : '');
+    result.push({
+      id: i+1, name,
+      age: 18 + Math.floor(Math.random()*20),
+      rating: (3.5 + Math.random()*1.5).toFixed(1),
+      avatar: AVATARS[i % AVATARS.length],
+      initials: name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase(),
+      status: 'pending',
+      events: Math.floor(Math.random()*12),
+      location: ['Ludhiana','Chandigarh','Amritsar','Delhi','Jalandhar'][i%5]
+    });
+  }
+  return result;
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(HEAD_DASHBOARD_STORAGE_KEY, JSON.stringify({
+      apps,
+      accepted,
+      waitlisted,
+      supervisors,
+      organisers
+    }));
+  } catch (error) {
+    console.warn('Could not save head dashboard state:', error);
+  }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(HEAD_DASHBOARD_STORAGE_KEY);
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    if (!parsed || !Array.isArray(parsed.apps)) return false;
+
+    // assign apps first so we can resolve references
+    apps = parsed.apps;
+
+    // helper to hydrate items that might be stored as ids or partial objects
+    function hydrate(item) {
+      if (!item) return null;
+      if (typeof item === 'number') {
+        return apps.find(a=>a.id===item) || null;
+      }
+      if (item.id && (item.name || item.initials)) return item;
+      if (item.id) return apps.find(a=>a.id===item.id) || null;
+      return null;
+    }
+
+    accepted = (parsed.accepted || []).map(a=>hydrate(a)).filter(Boolean);
+    waitlisted = (parsed.waitlisted || []).map(w=>hydrate(w)).filter(Boolean);
+    supervisors = (parsed.supervisors || []).map(s=>hydrate(s)).filter(Boolean);
+    organisers = (parsed.organisers || []).map(o=>hydrate(o)).filter(Boolean);
+    return true;
+  } catch (error) {
+    console.warn('Could not load head dashboard state:', error);
+    return false;
+  }
+}
+
+function init() {
+  if (!loadState()) {
+    apps = genApps(240);
+    saveState();
+  }
+  renderAll();
+}
+
+// ── RENDER ──
+function renderAll() {
+  renderApps(); renderAccepted(); renderWaitlist();
+  renderSupervisors(); renderOrganisers(); updateCounts();
+}
+
+function starHTML(r) {
+  const rating = Number(r) || 0;
+  const full = Math.floor(rating);
+  const half = rating % 1 >= 0.5;
+  return `${'★'.repeat(full)}${half ? '½' : ''} ${rating.toFixed(1)}`;
+}
+
+function notifyTargetFull() {
+  showToast(`Acceptance target reached (${ACCEPT_TARGET})`, 'var(--amber)');
+}
+
+function appCardHTML(v, showActions=true) {
+  const statusCls = v.status === 'pending' ? 'pending' : v.status;
+  const cardCls = v.status !== 'pending' ? v.status : '';
+  const slotsLeft = Math.max(ACCEPT_TARGET - accepted.length, 0);
+  return `<div class="app-card ${cardCls}" id="acard-${v.id}" data-name="${v.name.toLowerCase()}" data-status="${v.status}">
+    <div class="card-avatar">${v.initials}</div>
+    <div class="card-info">
+      <div class="card-name">${v.name}</div>
+      <div class="card-meta">
+        <span>Age ${v.age}</span>
+        <span>${v.location}</span>
+        <span>${v.events} past events</span>
+        <span class="card-rating">${starHTML(parseFloat(v.rating))}</span>
+      </div>
+    </div>
+    <div class="card-right">
+      <span class="status-badge ${statusCls}">${capitalize(v.status)}</span>
+      ${showActions ? `<div class="menu-wrap">
+        <button class="three-dot" onclick="toggleMenu(event,${v.id})" aria-label="Actions">⋮</button>
+        <div class="dropdown" id="dd-${v.id}">
+          ${slotsLeft === 0 && v.status !== 'accepted' ?
+            `<button class="dd-item accept disabled" onclick="notifyTargetFull()">Accept</button>` :
+            `<button class="dd-item accept" onclick="setStatus(${v.id},'accepted')">Accept</button>`}
+          <button class="dd-item reject" onclick="setStatus(${v.id},'rejected')">Reject</button>
+          <button class="dd-item waitlist" onclick="setStatus(${v.id},'waitlisted')">Waitlist</button>
+        </div>
+      </div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderApps() {
+  const q = (document.getElementById('app-search')?.value||'').toLowerCase();
+  const sf = document.getElementById('app-status-filter')?.value || 'all';
+  const list = apps.filter(v =>
+    v.name.toLowerCase().includes(q) &&
+    (sf === 'all' || v.status === sf)
+  );
+  const el = document.getElementById('app-list');
+  el.innerHTML = list.length ? list.map(v => appCardHTML(v)).join('') :
+    `<div class="empty">No applications found.</div>`;
+}
+
+function renderAccepted() {
+  const q = (document.getElementById('acc-search')?.value||'').toLowerCase();
+  const list = accepted.filter(v => v.name.toLowerCase().includes(q));
+  const el = document.getElementById('acc-list');
+  if (!el) return;
+  el.innerHTML = list.length ? list.map(v => appCardHTML(v, false)).join('') :
+    `<div class="empty">No accepted volunteers yet. Go to Applications to accept volunteers.</div>`;
+  const pct = Math.min((accepted.length/ACCEPT_TARGET)*100, 100);
+  const progress = document.getElementById('acc-progress');
+  if (progress) progress.style.width = pct + '%';
+  const sub = document.getElementById('acc-sub');
+  if (sub) sub.innerHTML = accepted.length >= ACCEPT_TARGET
+    ? `<span style="color:var(--green)">${accepted.length} accepted - ready to assign supervisors and organisers</span>`
+    : `${accepted.length} / ${ACCEPT_TARGET} accepted — ${ACCEPT_TARGET-accepted.length} more needed`;
+}
+
+function renderWaitlist() {
+  const q = (document.getElementById('wait-search')?.value||'').toLowerCase();
+  const list = waitlisted.filter(v => v.name.toLowerCase().includes(q));
+  const el = document.getElementById('wait-list');
+  if (!el) return;
+  el.innerHTML = list.length ? list.map(v => `<div class="app-card waitlisted" data-name="${v.name.toLowerCase()}">
+    <div class="card-avatar">${v.initials}</div>
+    <div class="card-info">
+      <div class="card-name">${v.name}</div>
+      <div class="card-meta"><span>Age ${v.age}</span><span>${v.location}</span><span class="card-rating">${starHTML(parseFloat(v.rating))}</span></div>
+    </div>
+    <div class="card-right">
+      <span class="status-badge waitlisted">Waitlisted</span>
+      <button class="topbar-btn" style="font-size:11px;padding:5px 12px" onclick="promoteById(${v.id})">Promote</button>
+    </div>
+  </div>`).join('') :
+    `<div class="empty">Waitlist is empty.</div>`;
+}
+
+function chipHTML(v, type) {
+  return `<div class="assigned-chip">
+    <div class="chip-avatar">${v.initials}</div>
+    <div style="flex:1;min-width:0">
+      <div class="chip-name">${v.name}</div>
+      <div class="chip-sub">${type === 'supervisor' ? 'Supervisor' : 'Organiser'}</div>
+    </div>
+    <button class="chip-remove" onclick="removeAssigned(${v.id},'${type}')" title="Remove">Remove</button>
+  </div>`;
+}
+
+function renderSupervisors() {
+  const grid = document.getElementById('sup-grid');
+  const empty = document.getElementById('sup-empty');
+  if (!grid || !empty) return;
+  grid.innerHTML = supervisors.map(v => chipHTML(v,'supervisor')).join('');
+  // add tile to assign from pending (only when slots remain)
+  if (supervisors.length < 10) {
+    grid.innerHTML += `<div class="assigned-add" onclick="openAssignFromPending('supervisor')" title="Assign from pending">
+      <div class="add-plus">+</div>
+    </div>`;
+  }
+  empty.style.display = supervisors.length ? 'none' : 'block';
+  const pct = (supervisors.length/10)*100;
+  document.getElementById('sup-progress').style.width = pct + '%';
+  document.getElementById('sup-count').textContent = supervisors.length;
+  document.getElementById('sup-plus-btn').disabled = supervisors.length >= 10;
+}
+
+function renderOrganisers() {
+  const grid = document.getElementById('org-grid');
+  const empty = document.getElementById('org-empty');
+  if (!grid || !empty) return;
+  grid.innerHTML = organisers.map(v => chipHTML(v,'organiser')).join('');
+  if (organisers.length < 5) {
+    grid.innerHTML += `<div class="assigned-add" onclick="openAssignFromPending('organiser')" title="Assign from pending">
+      <div class="add-plus">+</div>
+    </div>`;
+  }
+  empty.style.display = organisers.length ? 'none' : 'block';
+  const pct = (organisers.length/5)*100;
+  document.getElementById('org-progress').style.width = pct + '%';
+  document.getElementById('org-count').textContent = organisers.length;
+  document.getElementById('org-plus-btn').disabled = organisers.length >= 5;
+}
+
+function updateCounts() {
+  const pending = apps.filter(v=>v.status==='pending').length;
+  const rej = apps.filter(v=>v.status==='rejected').length;
+  const totalEl = document.getElementById('s-total');
+  const acceptedEl = document.getElementById('s-accepted');
+  const waitlistedEl = document.getElementById('s-waitlisted');
+  const supEl = document.getElementById('s-sup');
+  const orgEl = document.getElementById('s-org');
+  if (totalEl) totalEl.textContent = apps.length;
+  if (acceptedEl) acceptedEl.textContent = accepted.length;
+  if (waitlistedEl) waitlistedEl.textContent = waitlisted.length;
+  if (supEl) supEl.innerHTML = `${supervisors.length}<small style="font-size:.5em">/10</small>`;
+  if (orgEl) orgEl.innerHTML = `${organisers.length}<small style="font-size:.5em">/5</small>`;
+  // tabs
+  const tcApps = document.getElementById('tc-apps');
+  const tcAcc = document.getElementById('tc-acc');
+  const tcSup = document.getElementById('tc-sup');
+  const tcOrg = document.getElementById('tc-org');
+  const tcWait = document.getElementById('tc-wait');
+  if (tcApps) tcApps.textContent = apps.length;
+  if (tcAcc) tcAcc.textContent = accepted.length;
+  if (tcSup) tcSup.textContent = `${supervisors.length}/10`;
+  if (tcOrg) tcOrg.textContent = `${organisers.length}/5`;
+  if (tcWait) tcWait.textContent = waitlisted.length;
+  // nav badges
+}
+
+// ── ACTIONS ──
+function setStatus(id, status) {
+  closeAllDropdowns();
+  const v = apps.find(a=>a.id===id);
+  if (!v) return;
+  // block accepting if we've reached the target
+  if (status === 'accepted' && v.status !== 'accepted' && accepted.length >= ACCEPT_TARGET) {
+    showToast(`Acceptance target reached (${ACCEPT_TARGET})`, 'var(--amber)');
+    return;
+  }
+  const prev = v.status;
+
+  // Remove from old lists
+  if (prev === 'accepted') accepted = accepted.filter(a=>a.id!==id);
+  if (prev === 'waitlisted') waitlisted = waitlisted.filter(a=>a.id!==id);
+
+  v.status = status;
+
+  if (status === 'accepted') accepted.push(v);
+  if (status === 'waitlisted') waitlisted.push(v);
+
+  saveState();
+  renderAll();
+  showToast(
+    status === 'accepted'  ? `${v.name} accepted` :
+    status === 'rejected'  ? `${v.name} rejected` :
+                             `${v.name} added to waitlist`,
+    status === 'accepted' ? 'var(--green)' : status === 'rejected' ? 'var(--red)' : 'var(--amber)'
+  );
+}
+
+function removeAssigned(id, type) {
+  const v = type === 'supervisor'
+    ? supervisors.find(s=>s.id===id)
+    : organisers.find(o=>o.id===id);
+  if (!v) return;
+  if (type === 'supervisor') supervisors = supervisors.filter(s=>s.id!==id);
+  else organisers = organisers.filter(o=>o.id!==id);
+  saveState();
+  renderSupervisors(); renderOrganisers(); updateCounts();
+  showToast(`Removed ${v.name} from ${type}s`, 'var(--muted3)');
+}
+
+function promoteFirst() {
+  if (!waitlisted.length) return;
+  setStatus(waitlisted[0].id, 'accepted');
+}
+function promoteById(id) { setStatus(id, 'accepted'); }
+
+// ── DROPDOWNS ──
+function toggleMenu(e, id) {
+  e.stopPropagation();
+  const dd = document.getElementById('dd-'+id);
+  const isOpen = dd.classList.contains('open');
+  closeAllDropdowns();
+  if (!isOpen) { dd.classList.add('open'); openDropdown = id; }
+}
+function closeAllDropdowns() {
+  document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+  openDropdown = null;
+}
+document.addEventListener('click', closeAllDropdowns);
+
+// ── TABS ──
+function switchTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+name).style.display = 'block';
+
+  // activate tab btn
+  const tabBtn = document.getElementById('tab-'+name);
+  if (tabBtn) tabBtn.classList.add('active');
+  // activate nav item (el could be nav or tab)
+  if (el) el.classList.add('active');
+
+  currentTab = name;
+  document.getElementById('topbar-title-txt').textContent = capitalize(name);
+  closeSidebar();
+
+  if (name === 'applications') renderApps();
+  if (name === 'accepted') renderAccepted();
+  if (name === 'waitlist') renderWaitlist();
+  if (name === 'supervisors') renderSupervisors();
+  if (name === 'organisers') renderOrganisers();
+  return false;
+}
+
+// ── MODAL ──
+function openModal(mode) {
+  if (accepted.length < 1) {
+    showToast('Accept volunteers first before assigning roles', 'var(--amber)'); return;
+  }
+  modalMode = mode;
+  modalSource = 'accepted';
+  modalSelected.clear();
+  const max = mode === 'supervisor' ? 10 : 5;
+  const current = mode === 'supervisor' ? supervisors : organisers;
+  const other = mode === 'supervisor' ? organisers : supervisors;
+  const currentIds = new Set(current.map(v=>v.id));
+  const otherIds = new Set(other.map(v=>v.id));
+
+  document.getElementById('modal-title').textContent = mode === 'supervisor' ? 'Assign Supervisors' : 'Assign Organisers';
+  document.getElementById('modal-sub').textContent = `Select up to ${max} from accepted volunteers`;
+  document.getElementById('modal-search').value = '';
+  document.getElementById('modal-sel-count').textContent = '0';
+  document.getElementById('modal-confirm').disabled = true;
+
+  const avail = accepted.filter(v => !otherIds.has(v.id));
+  renderModalList(avail, currentIds, mode);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function openAssignFromPending(mode) {
+  // open modal populated with pending applications
+  modalMode = mode;
+  modalSource = 'pending';
+  modalSelected.clear();
+  const max = mode === 'supervisor' ? 10 : 5;
+  const current = mode === 'supervisor' ? supervisors : organisers;
+  const other = mode === 'supervisor' ? organisers : supervisors;
+  const currentIds = new Set(current.map(v=>v.id));
+  const otherIds = new Set(other.map(v=>v.id));
+
+  document.getElementById('modal-title').textContent = mode === 'supervisor' ? 'Assign Supervisors (from pending)' : 'Assign Organisers (from pending)';
+  document.getElementById('modal-sub').textContent = `Select up to ${max} from pending applications`;
+  document.getElementById('modal-search').value = '';
+  document.getElementById('modal-sel-count').textContent = '0';
+  document.getElementById('modal-confirm').disabled = true;
+
+  const avail = apps.filter(v => v.status === 'pending' && !otherIds.has(v.id));
+  renderModalList(avail, currentIds, mode);
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function assignPlusClicked(mode, e) {
+  // prevent nav button from also toggling tab twice
+  if (e && e.preventDefault) e.preventDefault();
+  if (e && e.stopPropagation) e.stopPropagation();
+  const panel = mode === 'supervisor' ? 'supervisors' : 'organisers';
+  // switch to the panel so users see context, then open modal
+  switchTab(panel);
+  setTimeout(()=>openAssignFromPending(mode), 120);
+}
+
+function renderModalList(list, preSelected, mode) {
+  const max = mode === 'supervisor' ? 10 : 5;
+  const current = mode === 'supervisor' ? supervisors.length : organisers.length;
+  const remaining = max - current;
+  document.getElementById('modal-list').innerHTML = list.length ? list.map(v => {
+    const alreadyAssigned = preSelected?.has(v.id);
+    const isSel = modalSelected.has(v.id);
+    const assignedClass = alreadyAssigned ? ' assigned' : '';
+    const pillText = alreadyAssigned ? 'Assigned' : 'Pending';
+    return `<div class="modal-item ${isSel ? 'selected' : ''}${assignedClass}" id="mi-${v.id}" onclick="toggleModalItem(${v.id},'${mode}')">
+      <div class="card-avatar" style="width:42px;height:42px;font-size:12px">${v.initials}</div>
+      <div class="modal-item-body">
+        <div class="modal-item-name">${v.name}</div>
+        <div class="modal-item-meta">
+          <span>Age ${v.age}</span>
+          <span>${v.location}</span>
+          <span>${starHTML(parseFloat(v.rating))}</span>
+          <span class="modal-item-pill">${pillText}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('') :
+  `<div class="empty">No eligible volunteers available.</div>`;
+}
+
+function toggleModalItem(id, mode) {
+  const max = mode === 'supervisor' ? 10 : 5;
+  const current = mode === 'supervisor' ? supervisors : organisers;
+  const alreadyAssigned = current.some(v=>v.id===id);
+  if (alreadyAssigned) return;
+
+  const el = document.getElementById('mi-'+id);
+  if (modalSelected.has(id)) {
+    modalSelected.delete(id);
+    el.classList.remove('selected');
+  } else {
+    if (modalSelected.size + current.length >= max) {
+      showToast(`Maximum ${max} allowed`, 'var(--amber)'); return;
+    }
+    modalSelected.add(id);
+    el.classList.add('selected');
+  }
+  const total = modalSelected.size;
+  document.getElementById('modal-sel-count').textContent = total;
+  document.getElementById('modal-confirm').disabled = total === 0;
+  // Do not auto-confirm; require explicit Confirm click to close modal
+}
+
+function filterModal() {
+  const q = document.getElementById('modal-search').value.toLowerCase();
+  const mode = modalMode;
+  const other = mode === 'supervisor' ? organisers : supervisors;
+  const otherIds = new Set(other.map(v=>v.id));
+  const currentIds = new Set((mode === 'supervisor' ? supervisors : organisers).map(v=>v.id));
+  let avail;
+  if (modalSource === 'pending') {
+    avail = apps.filter(v => v.status === 'pending' && !otherIds.has(v.id) && v.name.toLowerCase().includes(q));
+  } else {
+    avail = accepted.filter(v => !otherIds.has(v.id) && v.name.toLowerCase().includes(q));
+  }
+  renderModalList(avail, currentIds, mode);
+}
+
+function confirmAssign() {
+  const mode = modalMode;
+  const list = mode === 'supervisor' ? supervisors : organisers;
+  let added = 0;
+  // Fallback: if modalSelected is empty (e.g. DOM-driven selection), read selected items from DOM
+  try {
+    if ((!modalSelected || modalSelected.size === 0) && document.getElementById('modal-list')) {
+      const els = Array.from(document.querySelectorAll('#modal-list .modal-item.selected'));
+      if (els.length) {
+        modalSelected = new Set(els.map(el => Number(String(el.id || '').replace(/^mi-/, ''))).filter(Boolean));
+      }
+    }
+  } catch (e) {
+    console.warn('confirmAssign: could not read modal selections from DOM', e);
+  }
+
+  modalSelected.forEach(id => {
+    if (modalSource === 'pending') {
+      const v = apps.find(a=>a.id===id);
+      if (!v) return;
+      if (list.some(l=>l.id===id)) return;
+      // accept if needed
+      if (v.status === 'pending') {
+        if (accepted.length >= ACCEPT_TARGET) {
+          showToast(`Acceptance target reached (${ACCEPT_TARGET})`, 'var(--amber)'); return;
+        }
+        v.status = 'accepted';
+        accepted.push(v);
+      }
+      list.push(v);
+      added++;
+    } else {
+      const v = accepted.find(a=>a.id===id);
+      if (v && !list.some(l=>l.id===id)) { list.push(v); added++; }
+    }
+  });
+  // Debug and guard: log additions and dedupe arrays to avoid duplicate object refs
+  console.log('Added:', added);
+  console.log('Supervisors before dedupe:', supervisors);
+  console.log('Organisers before dedupe:', organisers);
+
+  function dedupeById(arr) {
+    const seen = new Set();
+    const out = [];
+    for (const it of arr) {
+      if (!it || !it.id) continue;
+      if (seen.has(it.id)) continue;
+      seen.add(it.id);
+      out.push(it);
+    }
+    return out;
+  }
+  supervisors = dedupeById(supervisors);
+  organisers = dedupeById(organisers);
+  accepted = dedupeById(accepted);
+
+  saveState();
+  renderAll();
+  closeModal();
+  if (added) showToast(`${added} ${mode}${added!==1?'s':''} assigned`, 'var(--green)');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  modalSelected.clear();
+}
+function maybeCloseModal(e) {
+  if (e.target === document.getElementById('modal-overlay')) closeModal();
+}
+
+// ── FILTERS ──
+function filterCards() { renderApps(); }
+function filterAccepted() { renderAccepted(); }
+function filterWaitlist() { renderWaitlist(); }
+
+// ── SIDEBAR ──
+function openSidebar() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarOverlay').classList.add('show');
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+}
+
+// ── TOAST ──
+let toastTimer;
+function showToast(msg, color='var(--green)') {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-dot').style.background = color;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── ROLE GUARD DEMO ──
+function simulateAccess() {
+  const guard = document.getElementById('roleGuard');
+  if (guard) {
+    guard.classList.remove('hidden');
+    guard.classList.add('show');
+  }
+}
+
+// ── HELPERS ──
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+// ── BOOT ──
+init();
+</script>
+</body>
+</html>

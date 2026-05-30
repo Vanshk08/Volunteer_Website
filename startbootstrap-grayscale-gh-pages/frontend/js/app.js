@@ -4,7 +4,7 @@ function normalizeApiBaseUrl(value) {
     const trimmedValue = String(value || '').trim();
 
     if (!trimmedValue) {
-        return 'https://volunteerwebsite-production-8fcc.up.railway.app/api';
+        return 'http://localhost:3001/api';
     }
 
     if (/^https?:\/\//i.test(trimmedValue)) {
@@ -17,8 +17,16 @@ function normalizeApiBaseUrl(value) {
 const API_BASE_URL = normalizeApiBaseUrl(
     window.API_BASE_URL ||
     document.documentElement.dataset.apiBaseUrl ||
-    'https://volunteerwebsite-production-8fcc.up.railway.app/api'
+    'http://localhost:3001/api'
 );
+
+function getStoredRole() {
+    return localStorage.getItem('stafflyRole') || 'volunteer';
+}
+
+function setStoredRole(role) {
+    localStorage.setItem('stafflyRole', role || 'volunteer');
+}
 
 async function trackPageView(page) {
     try {
@@ -30,6 +38,11 @@ async function trackPageView(page) {
 
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
+    const currentRole = getStoredRole();
+    if (currentRole === 'head') {
+        window.location.href = 'head-dashboard.html';
+        return;
+    }
     
     // Check if user is logged in
     const userProfile = localStorage.getItem('volunteerProfile');

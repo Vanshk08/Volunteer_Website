@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-api-base-url="https://volunteerwebsite-production-8fcc.up.railway.app/api">
+<html lang="en" data-api-base-url="http://localhost:3001/api">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -323,6 +323,13 @@
                         <div class="form-group">
                             <label for="loginEmail" class="form-label">Email Address *</label>
                             <input type="email" class="form-control" id="loginEmail" placeholder="Enter your registered email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginRole" class="form-label">Role *</label>
+                            <select class="form-control" id="loginRole" required>
+                                <option value="volunteer" selected>Volunteer</option>
+                                <option value="head">Head</option>
+                            </select>
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">Login</button>

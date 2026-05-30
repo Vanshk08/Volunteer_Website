@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-api-base-url="https://volunteerwebsite-production-8fcc.up.railway.app/api">
+<html lang="en" data-api-base-url="http://localhost:3001/api">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -32,6 +32,11 @@
                             <button class="nav-link" onclick="switchTab('events')">
                                 Events
                             </button>
+                        </li>
+                        <li class="nav-item" id="headDashboardNavItem" style="display: none;">
+                            <a class="nav-link" href="head-dashboard.html">
+                                Head Dashboard
+                            </a>
                         </li>
                         <li class="nav-item">
                             <button class="nav-link" onclick="switchTab('dashboard')">
@@ -464,6 +469,13 @@
                     <div class="form-group">
                         <label for="loginEmail">Email Address</label>
                         <input type="email" id="loginEmail" name="loginEmail" placeholder="Enter your registered email" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="loginRole">Role</label>
+                        <select id="loginRole" name="loginRole" required>
+                            <option value="volunteer" selected>Volunteer</option>
+                            <option value="head">Head</option>
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </form>

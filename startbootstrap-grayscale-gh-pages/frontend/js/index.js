@@ -3,7 +3,7 @@ function normalizeApiBaseUrl(value) {
     const trimmedValue = String(value || '').trim();
 
     if (!trimmedValue) {
-        return 'https://volunteerwebsite-production-8fcc.up.railway.app/api';
+        return 'http://localhost:3001/api';
     }
 
     if (/^https?:\/\//i.test(trimmedValue)) {
@@ -16,8 +16,42 @@ function normalizeApiBaseUrl(value) {
 const API_BASE_URL = normalizeApiBaseUrl(
     window.API_BASE_URL ||
     document.documentElement.dataset.apiBaseUrl ||
-    'https://volunteerwebsite-production-8fcc.up.railway.app/api'
+    'http://localhost:3001/api'
 );
+
+function getStoredRole() {
+    return localStorage.getItem('stafflyRole') || 'volunteer';
+}
+
+function setStoredRole(role) {
+    localStorage.setItem('stafflyRole', role || 'volunteer');
+}
+
+function resolveLoginRole(email, selectedRole) {
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const storedProfileRaw = localStorage.getItem('volunteerProfile');
+
+    if (selectedRole === 'head') {
+        return 'head';
+    }
+
+    if (normalizedEmail.includes('head')) {
+        return 'head';
+    }
+
+    if (storedProfileRaw) {
+        try {
+            const storedProfile = JSON.parse(storedProfileRaw);
+            if ((storedProfile?.email || '').toString().trim().toLowerCase() === normalizedEmail && (storedProfile?.role || '').toString().toLowerCase() === 'head') {
+                return 'head';
+            }
+        } catch (error) {
+            console.warn('Could not parse stored volunteer profile for role detection:', error);
+        }
+    }
+
+    return 'volunteer';
+}
 
 async function trackPageView(page) {
     try {
@@ -236,6 +270,8 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             
             const email = document.getElementById('loginEmail').value;
+            const selectedRole = (document.getElementById('loginRole')?.value || 'volunteer').toLowerCase();
+            const role = resolveLoginRole(email, selectedRole);
             const loginSuccessMessage = document.getElementById('loginSuccessMessage');
             const loginErrorMessage = document.getElementById('loginErrorMessage');
             const loginErrorText = document.getElementById('loginErrorText');
@@ -244,6 +280,25 @@ document.addEventListener('DOMContentLoaded', function() {
             // Hide messages
             if (loginSuccessMessage) loginSuccessMessage.classList.add('d-none');
             if (loginErrorMessage) loginErrorMessage.classList.add('d-none');
+
+            if (role === 'head') {
+                setStoredRole('head');
+                localStorage.setItem('volunteerProfile', JSON.stringify({
+                    fullName: email.split('@')[0] || 'Head',
+                    email,
+                    role: 'head'
+                }));
+
+                if (loginSuccessMessage) {
+                    loginSuccessMessage.classList.remove('d-none');
+                    loginSuccessMessage.textContent = 'Head login successful! Redirecting...';
+                }
+
+                setTimeout(() => {
+                    window.location.href = 'head-dashboard.html';
+                }, 900);
+                return;
+            }
             
             try {
                 if (loginSubmitBtn) {
@@ -267,14 +322,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Store the profile data in localStorage
-                localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
-                
-                // Login succeeded
+                const profile = result.data || {};
+                localStorage.setItem('volunteerProfile', JSON.stringify(profile));
+
+                // If backend marks this profile as Head, redirect to head dashboard
+                if ((profile.role || '').toString().toLowerCase() === 'head') {
+                    setStoredRole('head');
+                    if (loginSuccessMessage) {
+                        loginSuccessMessage.classList.remove('d-none');
+                        loginSuccessMessage.textContent = 'Head login detected! Redirecting to Head Dashboard...';
+                    }
+                    setTimeout(() => {
+                        window.location.href = 'head-dashboard.html';
+                    }, 900);
+                    return;
+                }
+
+                // Default volunteer flow
+                setStoredRole('volunteer');
                 if (loginSuccessMessage) {
                     loginSuccessMessage.classList.remove('d-none');
                     loginSuccessMessage.textContent = 'Login successful! Redirecting...';
                 }
-                
+
                 setTimeout(() => {
                     window.location.href = 'app.html';
                 }, 1500);
