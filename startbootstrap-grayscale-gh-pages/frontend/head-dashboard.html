@@ -218,6 +218,38 @@ body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"
   background: var(--green-dim); border: 1px solid rgba(29,255,143,0.18); border-radius: 999px; padding: 4px 8px; white-space: nowrap;
 }
 
+.requirements-modal { width: min(720px, 94%); }
+.requirements-form { display: flex; flex-direction: column; gap: 14px; }
+.requirements-grid-form { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.requirements-field { display: flex; flex-direction: column; gap: 8px; }
+.requirements-field label {
+  font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted2);
+}
+.requirements-field input {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; font-family: var(--sans); font-size: 14px; color: var(--white); outline: none;
+}
+.requirements-field input:focus {
+  border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(29,255,143,0.08);
+}
+.requirements-note { font-size: 12px; color: var(--muted2); line-height: 1.5; }
+.requirements-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+.assignment-footer {
+  margin-top: 24px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.assignment-footer-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+.assignment-footer-sub { font-size: 12px; color: var(--muted2); }
+.assignment-footer .topbar-btn.primary { padding: 10px 18px; }
+
 /* ── SUMMARY STRIP ── */
 .summary-strip {
   display: grid; grid-template-columns: repeat(5, 1fr);
@@ -469,6 +501,12 @@ body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"
       </a>
       <!-- Event group removed: Analytics / Messages / Settings -->
     </nav>
+    <div style="padding:12px 16px;">
+      <div class="nav-group-label" style="margin-bottom:8px">Actions</div>
+      <div style="display:flex;gap:8px;">
+        <button id="sidebar-complete-assignment" class="topbar-btn primary" onclick="completeAssignment()">Complete assignment</button>
+      </div>
+    </div>
     <div class="sidebar-footer">
       <div class="avatar-sm">RK</div>
       <div>
@@ -486,6 +524,7 @@ body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"
         <div class="breadcrumb">Staffly <span>/</span> <span id="topbar-title-txt">Applications</span></div>
       </div>
       <div class="topbar-right">
+        <button class="topbar-btn" onclick="openRequirementsModal()">Config changes</button>
         <button class="topbar-btn primary">Export CSV</button>
       </div>
     </header>
@@ -503,7 +542,7 @@ body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"
         <div class="sum-item green">
           <div class="sum-val green" id="s-accepted">0</div>
           <div class="sum-label">Accepted</div>
-          <div class="sum-sub">Target: 115</div>
+          <div class="sum-sub" id="accepted-target-sub">Target volunteers: 115</div>
         </div>
         <div class="sum-item amber">
           <div class="sum-val amber" id="s-waitlisted">0</div>
@@ -582,10 +621,9 @@ body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"
             </div>
             <div class="panel-actions">
               <div class="progress" style="width:220px"><div class="progress-bar" id="sup-progress"></div></div>
-              <button class="topbar-btn primary" id="sup-plus-btn" onclick="openModal('supervisor')">Assign</button>
             </div>
           </div>
-          <div class="section-card-sub" style="margin-bottom:10px">Selected: <strong id="sup-count">0</strong>/10</div>
+          <div class="section-card-sub" style="margin-bottom:10px">Selected: <strong id="sup-count">0</strong>/<span id="sup-target">10</span></div>
           <div id="sup-empty" class="empty">No supervisors assigned yet.</div>
           <div class="assigned-grid" id="sup-grid"></div>
         </div>
@@ -600,10 +638,9 @@ body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"
             </div>
             <div class="panel-actions">
               <div class="progress" style="width:220px"><div class="progress-bar" id="org-progress"></div></div>
-              <button class="topbar-btn primary" id="org-plus-btn" onclick="openModal('organiser')">Assign</button>
             </div>
           </div>
-          <div class="section-card-sub" style="margin-bottom:10px">Selected: <strong id="org-count">0</strong>/5</div>
+          <div class="section-card-sub" style="margin-bottom:10px">Selected: <strong id="org-count">0</strong>/<span id="org-target">5</span></div>
           <div id="org-empty" class="empty">No organisers assigned yet.</div>
           <div class="assigned-grid" id="org-grid"></div>
         </div>
@@ -622,6 +659,8 @@ body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"
         </div>
         <div class="cards-list" id="wait-list"></div>
       </div>
+
+      
 
     </div><!-- /content -->
   </div><!-- /main -->
@@ -648,6 +687,42 @@ body { font-variant-numeric: tabular-nums; -webkit-font-feature-settings: "tnum"
   </div>
 </div>
 
+  <!-- REQUIREMENTS MODAL -->
+  <div class="modal-overlay" id="requirements-overlay" onclick="maybeCloseRequirements(event)">
+    <div class="modal requirements-modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <div>
+          <div class="modal-title">Set Event Requirements</div>
+          <div class="modal-sub">Choose target volunteers, supervisors, and organisers for this event</div>
+        </div>
+        <button class="modal-close" onclick="closeRequirementsModal()">Close</button>
+      </div>
+      <form class="requirements-form" onsubmit="saveRequirements(event)">
+        <div class="requirements-grid-form">
+          <div class="requirements-field">
+            <label for="req-target-volunteers-input">Target Volunteers</label>
+            <input id="req-target-volunteers-input" type="number" min="1" step="1" required>
+          </div>
+          <div class="requirements-field">
+            <label for="req-supervisors-input">Supervisors</label>
+            <input id="req-supervisors-input" type="number" min="0" step="1" required>
+          </div>
+          <div class="requirements-field">
+            <label for="req-organisers-input">Organisers</label>
+            <input id="req-organisers-input" type="number" min="0" step="1" required>
+          </div>
+        </div>
+        <div class="requirements-note">
+          These counts replace the target volunteers, supervisors, and organisers for this event.
+        </div>
+        <div class="requirements-actions">
+          <button type="button" class="modal-close" onclick="closeRequirementsModal()">Skip for now</button>
+          <button type="submit" class="btn-confirm">Save Requirements</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
 <!-- TOAST -->
 <div class="toast" id="toast">
   <div class="toast-dot" id="toast-dot"></div>
@@ -668,8 +743,81 @@ let modalMode = '', modalSelected = new Set();
 let modalSource = 'accepted';
 let openDropdown = null;
 let currentTab = 'applications';
+const DEFAULT_REQUIREMENTS = { targetVolunteers: 115, supervisors: 10, organisers: 5 };
+let eventRequirements = { ...DEFAULT_REQUIREMENTS, configured: false };
+let ACCEPT_TARGET = DEFAULT_REQUIREMENTS.targetVolunteers;
+let SUPERVISOR_TARGET = DEFAULT_REQUIREMENTS.supervisors;
+let ORGANISER_TARGET = DEFAULT_REQUIREMENTS.organisers;
 const HEAD_DASHBOARD_STORAGE_KEY = 'stafflyHeadDashboardState';
-const ACCEPT_TARGET = 115; // maximum accepted volunteers
+
+function syncRequirementTargets() {
+  ACCEPT_TARGET = Math.max(1, Number(eventRequirements.targetVolunteers) || DEFAULT_REQUIREMENTS.targetVolunteers);
+  SUPERVISOR_TARGET = Math.max(0, Number(eventRequirements.supervisors) || DEFAULT_REQUIREMENTS.supervisors);
+  ORGANISER_TARGET = Math.max(0, Number(eventRequirements.organisers) || DEFAULT_REQUIREMENTS.organisers);
+  const supT = document.getElementById('sup-target');
+  const orgT = document.getElementById('org-target');
+  if (supT) supT.textContent = SUPERVISOR_TARGET;
+  if (orgT) orgT.textContent = ORGANISER_TARGET;
+}
+
+function getRoleTarget(mode) {
+  return mode === 'supervisor' ? SUPERVISOR_TARGET : ORGANISER_TARGET;
+}
+
+function updateRequirementsPanel() {
+  const targetEl = document.getElementById('accepted-target-sub');
+  if (targetEl) targetEl.textContent = `Target volunteers: ${ACCEPT_TARGET}`;
+}
+
+function dedupeById(arr) {
+  const seen = new Set();
+  const out = [];
+  for (const it of arr) {
+    if (!it || !it.id) continue;
+    if (seen.has(it.id)) continue;
+    seen.add(it.id);
+    out.push(it);
+  }
+  return out;
+}
+
+function openRequirementsModal() {
+  document.getElementById('req-target-volunteers-input').value = ACCEPT_TARGET;
+  document.getElementById('req-supervisors-input').value = SUPERVISOR_TARGET;
+  document.getElementById('req-organisers-input').value = ORGANISER_TARGET;
+  document.getElementById('requirements-overlay').classList.add('open');
+}
+
+function closeRequirementsModal() {
+  document.getElementById('requirements-overlay').classList.remove('open');
+}
+
+function maybeCloseRequirements(e) {
+  if (e.target === document.getElementById('requirements-overlay')) closeRequirementsModal();
+}
+
+function saveRequirements(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  const targetVolunteers = Number.parseInt(document.getElementById('req-target-volunteers-input').value, 10);
+  const supervisorsCount = Number.parseInt(document.getElementById('req-supervisors-input').value, 10);
+  const organisersCount = Number.parseInt(document.getElementById('req-organisers-input').value, 10);
+  if (!Number.isFinite(targetVolunteers) || targetVolunteers < 1 || !Number.isFinite(supervisorsCount) || supervisorsCount < 0 || !Number.isFinite(organisersCount) || organisersCount < 0) {
+    showToast('Enter valid requirement counts', 'var(--amber)');
+    return;
+  }
+  eventRequirements = {
+    targetVolunteers,
+    supervisors: supervisorsCount,
+    organisers: organisersCount,
+    configured: true
+  };
+  syncRequirementTargets();
+  saveState();
+  updateRequirementsPanel();
+  renderAll();
+  closeRequirementsModal();
+  showToast('Event requirements saved', 'var(--green)');
+}
 
 // Generate mock applications
 function genApps(n) {
@@ -697,7 +845,8 @@ function saveState() {
       accepted,
       waitlisted,
       supervisors,
-      organisers
+      organisers,
+      requirements: eventRequirements
     }));
   } catch (error) {
     console.warn('Could not save head dashboard state:', error);
@@ -729,6 +878,15 @@ function loadState() {
     waitlisted = (parsed.waitlisted || []).map(w=>hydrate(w)).filter(Boolean);
     supervisors = (parsed.supervisors || []).map(s=>hydrate(s)).filter(Boolean);
     organisers = (parsed.organisers || []).map(o=>hydrate(o)).filter(Boolean);
+    if (parsed.requirements) {
+      eventRequirements = {
+        targetVolunteers: Number.parseInt(parsed.requirements.targetVolunteers ?? parsed.requirements.volunteers, 10) || DEFAULT_REQUIREMENTS.targetVolunteers,
+        supervisors: Number.parseInt(parsed.requirements.supervisors, 10) || DEFAULT_REQUIREMENTS.supervisors,
+        organisers: Number.parseInt(parsed.requirements.organisers, 10) || DEFAULT_REQUIREMENTS.organisers,
+        configured: Boolean(parsed.requirements.configured)
+      };
+    }
+    syncRequirementTargets();
     return true;
   } catch (error) {
     console.warn('Could not load head dashboard state:', error);
@@ -739,15 +897,21 @@ function loadState() {
 function init() {
   if (!loadState()) {
     apps = genApps(240);
+    syncRequirementTargets();
     saveState();
   }
   renderAll();
+  updateRequirementsPanel();
+  if (currentTab === 'applications' && !eventRequirements.configured) {
+    setTimeout(openRequirementsModal, 120);
+  }
 }
 
 // ── RENDER ──
 function renderAll() {
   renderApps(); renderAccepted(); renderWaitlist();
   renderSupervisors(); renderOrganisers(); updateCounts();
+  updateRequirementsPanel();
 }
 
 function starHTML(r) {
@@ -855,17 +1019,11 @@ function renderSupervisors() {
   const empty = document.getElementById('sup-empty');
   if (!grid || !empty) return;
   grid.innerHTML = supervisors.map(v => chipHTML(v,'supervisor')).join('');
-  // add tile to assign from pending (only when slots remain)
-  if (supervisors.length < 10) {
-    grid.innerHTML += `<div class="assigned-add" onclick="openAssignFromPending('supervisor')" title="Assign from pending">
-      <div class="add-plus">+</div>
-    </div>`;
-  }
   empty.style.display = supervisors.length ? 'none' : 'block';
-  const pct = (supervisors.length/10)*100;
+  const pct = SUPERVISOR_TARGET ? (supervisors.length/SUPERVISOR_TARGET)*100 : 0;
   document.getElementById('sup-progress').style.width = pct + '%';
   document.getElementById('sup-count').textContent = supervisors.length;
-  document.getElementById('sup-plus-btn').disabled = supervisors.length >= 10;
+  // sidebar assign button removed; no-op
 }
 
 function renderOrganisers() {
@@ -873,16 +1031,11 @@ function renderOrganisers() {
   const empty = document.getElementById('org-empty');
   if (!grid || !empty) return;
   grid.innerHTML = organisers.map(v => chipHTML(v,'organiser')).join('');
-  if (organisers.length < 5) {
-    grid.innerHTML += `<div class="assigned-add" onclick="openAssignFromPending('organiser')" title="Assign from pending">
-      <div class="add-plus">+</div>
-    </div>`;
-  }
   empty.style.display = organisers.length ? 'none' : 'block';
-  const pct = (organisers.length/5)*100;
+  const pct = ORGANISER_TARGET ? (organisers.length/ORGANISER_TARGET)*100 : 0;
   document.getElementById('org-progress').style.width = pct + '%';
   document.getElementById('org-count').textContent = organisers.length;
-  document.getElementById('org-plus-btn').disabled = organisers.length >= 5;
+  // sidebar assign button removed; no-op
 }
 
 function updateCounts() {
@@ -896,8 +1049,8 @@ function updateCounts() {
   if (totalEl) totalEl.textContent = apps.length;
   if (acceptedEl) acceptedEl.textContent = accepted.length;
   if (waitlistedEl) waitlistedEl.textContent = waitlisted.length;
-  if (supEl) supEl.innerHTML = `${supervisors.length}<small style="font-size:.5em">/10</small>`;
-  if (orgEl) orgEl.innerHTML = `${organisers.length}<small style="font-size:.5em">/5</small>`;
+  if (supEl) supEl.innerHTML = `${supervisors.length}<small style="font-size:.5em">/${SUPERVISOR_TARGET}</small>`;
+  if (orgEl) orgEl.innerHTML = `${organisers.length}<small style="font-size:.5em">/${ORGANISER_TARGET}</small>`;
   // tabs
   const tcApps = document.getElementById('tc-apps');
   const tcAcc = document.getElementById('tc-acc');
@@ -906,14 +1059,26 @@ function updateCounts() {
   const tcWait = document.getElementById('tc-wait');
   if (tcApps) tcApps.textContent = apps.length;
   if (tcAcc) tcAcc.textContent = accepted.length;
-  if (tcSup) tcSup.textContent = `${supervisors.length}/10`;
-  if (tcOrg) tcOrg.textContent = `${organisers.length}/5`;
+  if (tcSup) tcSup.textContent = `${supervisors.length}/${SUPERVISOR_TARGET}`;
+  if (tcOrg) tcOrg.textContent = `${organisers.length}/${ORGANISER_TARGET}`;
   if (tcWait) tcWait.textContent = waitlisted.length;
   // nav badges
+  // show or hide the Complete assignment button only when all targets are met
+  const completeBtn = document.getElementById('sidebar-complete-assignment');
+  const allAssigned = accepted.length >= ACCEPT_TARGET && supervisors.length >= SUPERVISOR_TARGET && organisers.length >= ORGANISER_TARGET;
+  if (completeBtn) {
+    if (allAssigned) completeBtn.classList.remove('hidden');
+    else completeBtn.classList.add('hidden');
+  }
 }
 
 // ── ACTIONS ──
 function setStatus(id, status) {
+  if (!eventRequirements.configured) {
+    openRequirementsModal();
+    showToast('Set event requirements first', 'var(--amber)');
+    return;
+  }
   closeAllDropdowns();
   const v = apps.find(a=>a.id===id);
   if (!v) return;
@@ -941,6 +1106,23 @@ function setStatus(id, status) {
                              `${v.name} added to waitlist`,
     status === 'accepted' ? 'var(--green)' : status === 'rejected' ? 'var(--red)' : 'var(--amber)'
   );
+}
+
+function completeAssignment() {
+  const pending = apps.filter(v => v.status === 'pending');
+  if (!pending.length) {
+    switchTab('waitlist');
+    showToast('No pending volunteers left to waitlist', 'var(--amber)');
+    return;
+  }
+
+  pending.forEach(v => { v.status = 'waitlisted'; });
+  waitlisted = dedupeById([...waitlisted, ...pending]);
+
+  saveState();
+  renderAll();
+  switchTab('waitlist');
+  showToast(`${pending.length} pending volunteer${pending.length !== 1 ? 's' : ''} moved to waitlist`, 'var(--amber)');
 }
 
 function removeAssigned(id, type) {
@@ -997,18 +1179,26 @@ function switchTab(name, el) {
   if (name === 'waitlist') renderWaitlist();
   if (name === 'supervisors') renderSupervisors();
   if (name === 'organisers') renderOrganisers();
+  if (name === 'applications' && !eventRequirements.configured) {
+    setTimeout(openRequirementsModal, 120);
+  }
   return false;
 }
 
 // ── MODAL ──
 function openModal(mode) {
+  if (!eventRequirements.configured) {
+    openRequirementsModal();
+    showToast('Set event requirements first', 'var(--amber)');
+    return;
+  }
   if (accepted.length < 1) {
     showToast('Accept volunteers first before assigning roles', 'var(--amber)'); return;
   }
   modalMode = mode;
   modalSource = 'accepted';
   modalSelected.clear();
-  const max = mode === 'supervisor' ? 10 : 5;
+  const max = getRoleTarget(mode);
   const current = mode === 'supervisor' ? supervisors : organisers;
   const other = mode === 'supervisor' ? organisers : supervisors;
   const currentIds = new Set(current.map(v=>v.id));
@@ -1026,11 +1216,16 @@ function openModal(mode) {
 }
 
 function openAssignFromPending(mode) {
+  if (!eventRequirements.configured) {
+    openRequirementsModal();
+    showToast('Set event requirements first', 'var(--amber)');
+    return;
+  }
   // open modal populated with pending applications
   modalMode = mode;
   modalSource = 'pending';
   modalSelected.clear();
-  const max = mode === 'supervisor' ? 10 : 5;
+  const max = getRoleTarget(mode);
   const current = mode === 'supervisor' ? supervisors : organisers;
   const other = mode === 'supervisor' ? organisers : supervisors;
   const currentIds = new Set(current.map(v=>v.id));
@@ -1058,7 +1253,7 @@ function assignPlusClicked(mode, e) {
 }
 
 function renderModalList(list, preSelected, mode) {
-  const max = mode === 'supervisor' ? 10 : 5;
+  const max = getRoleTarget(mode);
   const current = mode === 'supervisor' ? supervisors.length : organisers.length;
   const remaining = max - current;
   document.getElementById('modal-list').innerHTML = list.length ? list.map(v => {
@@ -1083,7 +1278,7 @@ function renderModalList(list, preSelected, mode) {
 }
 
 function toggleModalItem(id, mode) {
-  const max = mode === 'supervisor' ? 10 : 5;
+  const max = getRoleTarget(mode);
   const current = mode === 'supervisor' ? supervisors : organisers;
   const alreadyAssigned = current.some(v=>v.id===id);
   if (alreadyAssigned) return;
@@ -1122,7 +1317,10 @@ function filterModal() {
 
 function confirmAssign() {
   const mode = modalMode;
-  const list = mode === 'supervisor' ? supervisors : organisers;
+  const isSupervisor = mode === 'supervisor';
+  const roleLabel = isSupervisor ? 'Supervisor' : 'Organiser';
+  const currentList = isSupervisor ? supervisors : organisers;
+  const nextList = [...currentList];
   let added = 0;
   // Fallback: if modalSelected is empty (e.g. DOM-driven selection), read selected items from DOM
   try {
@@ -1140,7 +1338,6 @@ function confirmAssign() {
     if (modalSource === 'pending') {
       const v = apps.find(a=>a.id===id);
       if (!v) return;
-      if (list.some(l=>l.id===id)) return;
       // accept if needed
       if (v.status === 'pending') {
         if (accepted.length >= ACCEPT_TARGET) {
@@ -1149,37 +1346,26 @@ function confirmAssign() {
         v.status = 'accepted';
         accepted.push(v);
       }
-      list.push(v);
-      added++;
+      if (!nextList.some(l=>l.id===id)) {
+        nextList.push(v);
+        added++;
+      }
     } else {
       const v = accepted.find(a=>a.id===id);
-      if (v && !list.some(l=>l.id===id)) { list.push(v); added++; }
+      if (v && !nextList.some(l=>l.id===id)) { nextList.push(v); added++; }
     }
   });
-  // Debug and guard: log additions and dedupe arrays to avoid duplicate object refs
-  console.log('Added:', added);
-  console.log('Supervisors before dedupe:', supervisors);
-  console.log('Organisers before dedupe:', organisers);
 
-  function dedupeById(arr) {
-    const seen = new Set();
-    const out = [];
-    for (const it of arr) {
-      if (!it || !it.id) continue;
-      if (seen.has(it.id)) continue;
-      seen.add(it.id);
-      out.push(it);
-    }
-    return out;
-  }
-  supervisors = dedupeById(supervisors);
-  organisers = dedupeById(organisers);
+  if (isSupervisor) supervisors = dedupeById(nextList);
+  else organisers = dedupeById(nextList);
   accepted = dedupeById(accepted);
 
   saveState();
   renderAll();
   closeModal();
-  if (added) showToast(`${added} ${mode}${added!==1?'s':''} assigned`, 'var(--green)');
+  switchTab(isSupervisor ? 'supervisors' : 'organisers');
+  if (added) showToast(`${added} ${roleLabel}${added !== 1 ? 's' : ''} added`, 'var(--green)');
+  else showToast(`No new ${roleLabel.toLowerCase()} selected`, 'var(--amber)');
 }
 
 function closeModal() {
