@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-api-base-url="http://localhost:3001/api">
+<html lang="en" data-api-base-url="https://volunteerwebsite-production-8fcc.up.railway.app/api">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -32,11 +32,6 @@
                             <button class="nav-link" onclick="switchTab('events')">
                                 Events
                             </button>
-                        </li>
-                        <li class="nav-item" id="headDashboardNavItem" style="display: none;">
-                            <a class="nav-link" href="head-dashboard.html">
-                                Head Dashboard
-                            </a>
                         </li>
                         <li class="nav-item">
                             <button class="nav-link" onclick="switchTab('dashboard')">
@@ -424,6 +419,10 @@
                         <input type="email" id="email" name="email" required />
                     </div>
                     <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" minlength="6" required />
+                    </div>
+                    <div class="form-group">
                         <label for="phone">Phone Number</label>
                         <input type="tel" id="phone" name="phone" />
                     </div>
@@ -471,11 +470,8 @@
                         <input type="email" id="loginEmail" name="loginEmail" placeholder="Enter your registered email" required />
                     </div>
                     <div class="form-group">
-                        <label for="loginRole">Role</label>
-                        <select id="loginRole" name="loginRole" required>
-                            <option value="volunteer" selected>Volunteer</option>
-                            <option value="head">Head</option>
-                        </select>
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="loginPassword" minlength="6" required />
                     </div>
                     <button type="submit" class="btn btn-primary">Login</button>
                 </form>
