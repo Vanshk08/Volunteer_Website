@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show success message
                 if (successMessage) successMessage.classList.remove('d-none');
                 
-                // Store profile data in localStorage
+                    const profile = result.user || result.data || {};
                 localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
                 
                 // Update button to Profile
@@ -312,11 +312,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Store the profile data in localStorage
-              const profile = result.user || result.data || {};
+                const profile = result.user || result.data || {};
                 localStorage.setItem('volunteerProfile', JSON.stringify(profile));
                 const role = (profile.role || 'volunteer').toLowerCase();
 
-localStorage.setItem('stafflyRole', role);
+                localStorage.setItem('stafflyRole', role);
 
                 if (supabaseClient) {
                     const { data: userData, error: userError } = await supabaseClient.auth.getUser();
@@ -328,7 +328,7 @@ localStorage.setItem('stafflyRole', role);
                 }
 
                 // If backend marks this profile as Head, redirect to head dashboard
-               if (role === 'head'){
+                if (role === 'head') {
                     setStoredRole('head');
                     if (loginSuccessMessage) {
                         loginSuccessMessage.classList.remove('d-none');

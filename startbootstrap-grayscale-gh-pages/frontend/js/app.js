@@ -29,7 +29,11 @@ const supabaseClient = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
     : null;
 
 function getStoredRole() {
-    return localStorage.getItem('stafflyRole') || 'volunteer';
+    const profile = JSON.parse(
+        localStorage.getItem('volunteerProfile') || '{}'
+    );
+
+    return (profile.role || 'volunteer').toLowerCase();
 }
 
 function setStoredRole(role) {
@@ -843,6 +847,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Store profile in localStorage for session
                     localStorage.setItem('volunteerProfile', JSON.stringify(result.user));
+                    const role = (result.user?.role || 'volunteer').toLowerCase();
+                    localStorage.setItem('stafflyRole', role);
+
+                    if (role === 'head') {
+                        if (loginSuccessMessage) {
+                            loginSuccessMessage.classList.remove('d-none');
+                            loginSuccessMessage.textContent = 'Head login detected! Redirecting to Head Dashboard...';
+                        }
+                        setTimeout(() => {
+                            window.location.href = 'head-dashboard.html';
+                        }, 900);
+                        return;
+                    }
 
                     if (supabaseClient) {
                         const { data: userData, error: userError } = await supabaseClient.auth.getUser();
