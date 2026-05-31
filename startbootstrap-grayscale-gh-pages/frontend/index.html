@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-api-base-url="http://localhost:3001/api">
+<html lang="en" data-api-base-url="http://localhost:3001/api" data-supabase-url="https://YOUR_PROJECT.supabase.co" data-supabase-anon-key="YOUR_SUPABASE_ANON_KEY">
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -285,6 +285,10 @@
                             <input type="email" class="form-control" id="email" required>
                         </div>
                         <div class="form-group">
+                            <label for="password" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" minlength="6" required>
+                        </div>
+                        <div class="form-group">
                             <label for="phone" class="form-label">Phone Number *</label>
                             <input type="tel" class="form-control" id="phone" required>
                         </div>
@@ -323,6 +327,10 @@
                         <div class="form-group">
                             <label for="loginEmail" class="form-label">Email Address *</label>
                             <input type="email" class="form-control" id="loginEmail" placeholder="Enter your registered email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="loginPassword" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="loginPassword" minlength="6" required>
                         </div>
                         <div class="form-group">
                             <label for="loginRole" class="form-label">Role *</label>
@@ -381,6 +389,7 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
         <script src="js/scripts.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.1/dist/umd/supabase.min.js" crossorigin="anonymous"></script>
         <script src="js/index.js"></script>
         <script>
             // Custom cursor removed; keep default system cursor

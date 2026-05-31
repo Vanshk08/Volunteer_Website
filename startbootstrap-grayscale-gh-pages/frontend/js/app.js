@@ -22,6 +22,12 @@ function getApiBaseUrl() {
     );
 }
 
+const SUPABASE_URL = String(document.documentElement.dataset.supabaseUrl || '').trim();
+const SUPABASE_ANON_KEY = String(document.documentElement.dataset.supabaseAnonKey || '').trim();
+const supabaseClient = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
 function getStoredRole() {
     return localStorage.getItem('stafflyRole') || 'volunteer';
 }
@@ -837,6 +843,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Store profile in localStorage for session
                     localStorage.setItem('volunteerProfile', JSON.stringify(result.user));
+
+                    if (supabaseClient) {
+                        const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+                        if (userError) {
+                            console.warn('Supabase getUser failed:', userError.message);
+                        } else if (userData?.user) {
+                            localStorage.setItem('supabaseUser', JSON.stringify(userData.user));
+                        }
+                    }
                     
                     // Update navbar buttons
                     loadProfile();

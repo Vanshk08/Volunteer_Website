@@ -1,3 +1,13 @@
+<script>
+const profile =
+ JSON.parse(
+   localStorage.getItem('volunteerProfile') || '{}'
+ );
+
+if (profile.role !== 'head') {
+   window.location.href = 'app.html';
+}
+</script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
