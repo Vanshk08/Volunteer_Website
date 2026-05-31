@@ -285,6 +285,10 @@
                             <input type="email" class="form-control" id="email" required>
                         </div>
                         <div class="form-group">
+                            <label for="password" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="password" autocomplete="new-password" required>
+                        </div>
+                        <div class="form-group">
                             <label for="phone" class="form-label">Phone Number *</label>
                             <input type="tel" class="form-control" id="phone" required>
                         </div>
@@ -304,6 +308,10 @@
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">Submit & Sign Up</button>
                             <button type="button" class="btn btn-secondary" onclick="closeVolunteerForm()">Cancel</button>
+                        </div>
+                        <div class="form-note" style="margin-top: 18px; text-align: center; color: rgba(247,244,238,0.72); font-size: 13px;">
+                            Already registered?
+                            <a href="javascript:void(0)" onclick="closeVolunteerForm(); openLoginForm();" style="color: #64a19d; text-decoration: underline;">Login here</a>
                         </div>
                     </form>
                     <div id="successMessage" class="alert alert-success d-none"><strong>Success!</strong> Your volunteer application has been submitted. We'll contact you soon!</div>
@@ -325,11 +333,8 @@
                             <input type="email" class="form-control" id="loginEmail" placeholder="Enter your registered email" required>
                         </div>
                         <div class="form-group">
-                            <label for="loginRole" class="form-label">Role *</label>
-                            <select class="form-control" id="loginRole" required>
-                                <option value="volunteer" selected>Volunteer</option>
-                                <option value="head">Head</option>
-                            </select>
+                            <label for="loginPassword" class="form-label">Password *</label>
+                            <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
                         </div>
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">Login</button>

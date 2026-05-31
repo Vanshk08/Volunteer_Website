@@ -14,13 +14,11 @@ function normalizeApiBaseUrl(value) {
     return `https://${trimmedValue.replace(/^\/+/, '').replace(/\/$/, '')}`;
 }
 
-function getApiBaseUrl() {
-    return normalizeApiBaseUrl(
-        window.API_BASE_URL ||
-        document.documentElement.dataset.apiBaseUrl ||
-        'http://localhost:3001/api'
-    );
-}
+const API_BASE_URL = normalizeApiBaseUrl(
+    window.API_BASE_URL ||
+    document.documentElement.dataset.apiBaseUrl ||
+    'http://localhost:3001/api'
+);
 
 function getStoredRole() {
     return localStorage.getItem('stafflyRole') || 'volunteer';
@@ -32,7 +30,7 @@ function setStoredRole(role) {
 
 async function trackPageView(page) {
     try {
-        await fetch(`${getApiBaseUrl()}/${page}`);
+        await fetch(`${API_BASE_URL}/${page}`);
     } catch (error) {
         console.warn(`Page tracking failed for ${page}:`, error);
     }
@@ -41,8 +39,10 @@ async function trackPageView(page) {
 // Initialize app on page load
 document.addEventListener('DOMContentLoaded', function() {
     const currentRole = getStoredRole();
-    // adjust UI for role (head or volunteer)
-    updateUIForRole(currentRole);
+    if (currentRole === 'head') {
+        window.location.href = 'head-dashboard.html';
+        return;
+    }
     
     // Check if user is logged in
     const userProfile = localStorage.getItem('volunteerProfile');
@@ -64,30 +64,6 @@ document.addEventListener('DOMContentLoaded', function() {
     trackPageView('events');
     trackPageView('volunteer-dashboard');
 });
-
-function updateUIForRole(role) {
-    // Show create event button for heads
-    const createBtn = document.getElementById('navCreateBtn');
-    const signupBtn = document.getElementById('navSignupBtn');
-    const logoutBtn = document.getElementById('navLogoutBtn');
-    const tabBtnDashboard = document.querySelector('[data-tab="dashboard"]');
-
-    if (role === 'head') {
-        if (createBtn) createBtn.classList.remove('d-none');
-        // change dashboard tab to link to head dashboard
-        if (tabBtnDashboard) tabBtnDashboard.querySelector('span').textContent = 'Head Dashboard';
-        // clicking dashboard will go to head-dashboard.html
-        tabBtnDashboard.onclick = () => { window.location.href = 'head-dashboard.html'; };
-    } else {
-        if (createBtn) createBtn.classList.add('d-none');
-        if (tabBtnDashboard) tabBtnDashboard.querySelector('span').textContent = 'Volunteer Dashboard';
-        tabBtnDashboard.onclick = () => switchTab('dashboard');
-    }
-
-    // show/hide signup/logout
-    if (signupBtn) signupBtn.style.display = role ? 'none' : 'block';
-    if (logoutBtn) logoutBtn.classList.remove('d-none');
-}
 
 // Handle browser back/forward buttons
 window.addEventListener('popstate', function(event) {
@@ -138,24 +114,7 @@ function switchTab(tabName, pushState = true) {
 function loadEvents() {
     const eventsGrid = document.getElementById('eventsGrid');
     if (!eventsGrid) return;
-    // Fetch events from backend API
-    eventsGrid.innerHTML = '<div class="text-muted">Loading events…</div>';
-    fetch(`${getApiBaseUrl()}/events-api`).then(r => r.json()).then(json => {
-        if (!json || !json.events || !Array.isArray(json.events) || json.events.length === 0) {
-            eventsGrid.innerHTML = '<div class="empty">No upcoming events.</div>';
-            return;
-        }
-        // optional filter
-        const activeFilter = document.querySelector('.filter-btn.active');
-        const selectedFilter = activeFilter ? activeFilter.dataset.filter || 'all' : 'all';
-        let list = json.events;
-        if (selectedFilter !== 'all') list = list.filter(e => (e.category || '').toLowerCase() === selectedFilter);
-        eventsGrid.innerHTML = '';
-        list.forEach(event => eventsGrid.appendChild(createEventCard(event)));
-    }).catch(err => {
-        console.warn('Could not load events from API', err);
-        eventsGrid.innerHTML = '<div class="empty">Could not load events. Try again later.</div>';
-    });
+    eventsGrid.innerHTML = '<div class="empty-state">No events available yet.</div>';
 }
 
 // Create event card element
@@ -170,9 +129,8 @@ function createEventCard(event) {
         year: 'numeric'
     });
     
-    const img = event.image || event.image_url || '';
     card.innerHTML = `
-        <img src="${img}" alt="${event.title}" class="event-image">
+        <img src="${event.image}" alt="${event.title}" class="event-image">
         <div class="event-card-body">
             <div class="event-date">
                 ${formattedDate}
@@ -191,7 +149,7 @@ function createEventCard(event) {
                     <strong>${availableSlots}</strong>
                 </div>
             </div>
-            <button class="event-btn" onclick="applyForEvent(${event.id}, '${(event.title||'').replace(/'/g,"\'")}')">
+            <button class="event-btn" onclick="applyForEvent(${event.id}, '${event.title}')">
                 Apply Now
             </button>
         </div>
@@ -231,27 +189,9 @@ function applyForEvent(eventId, eventTitle) {
         switchTab('dashboard');
         return;
     }
-    // Call backend apply endpoint
-    const profile = JSON.parse(userProfile);
-    const userId = profile.user_id || profile.userId || profile.id || null;
-    if (!userId) {
-        alert('Missing user id in profile. Please re-login.');
-        return;
-    }
-
-    fetch(`${getApiBaseUrl()}/events-api/${eventId}/apply`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId })
-    }).then(r => r.json()).then(json => {
-        if (json && json.success) {
-            alert(`Applied for "${eventTitle}" — application submitted.`);
-        } else {
-            alert(`Could not apply: ${json && json.error ? json.error : 'Unknown error'}`);
-        }
-    }).catch(err => {
-        console.error('Apply error', err);
-        alert('Could not apply — network error');
-    });
+    
+    // Mock API call
+    alert(`Successfully applied for "${eventTitle}"! You will receive confirmation soon.`);
 }
 
 // Load and display profile/dashboard
@@ -339,52 +279,6 @@ function loadDashboard() {
         if (dashboardSidebar) dashboardSidebar.style.display = 'none';
     }
 }
-
-// Create event modal handlers
-function openCreateEventModal() {
-    const role = getStoredRole();
-    if (role !== 'head') { alert('Only heads may create events'); return; }
-    const modalEl = new bootstrap.Modal(document.getElementById('createEventModal'));
-    modalEl.show();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('createEventForm');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('evt-name').value.trim();
-            const location = document.getElementById('evt-location').value.trim();
-            const pay = Number(document.getElementById('evt-pay').value) || 0;
-            const time = document.getElementById('evt-time').value;
-            const reqs = document.getElementById('evt-reqs').value;
-            let requirements = null;
-            try { requirements = reqs ? JSON.parse(reqs) : null; } catch (err) { requirements = reqs; }
-            const profile = getStoredProfile();
-            const userId = profile?.user_id || profile?.userId || profile?.id || null;
-            fetch(`${getApiBaseUrl()}/events-api`, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, location, payPerVolunteer: pay, time, requirements, created_by: userId })
-            }).then(r => r.json()).then(json => {
-                const msg = document.getElementById('createEventMsg');
-                if (json && json.success) {
-                    if (msg) msg.innerHTML = '<div class="text-success">Event created.</div>';
-                    // refresh list
-                    loadEvents();
-                    // hide modal
-                    const m = bootstrap.Modal.getInstance(document.getElementById('createEventModal'));
-                    if (m) m.hide();
-                } else {
-                    if (msg) msg.innerHTML = `<div class="text-danger">${json && json.error ? json.error : 'Could not create event'}</div>`;
-                }
-            }).catch(err => {
-                console.error('Create event error', err);
-                const msg = document.getElementById('createEventMsg');
-                if (msg) msg.innerHTML = '<div class="text-danger">Network error</div>';
-            });
-        });
-    }
-});
 
 // Show/hide dashboard sections
 function showDashboardSection(sectionName) {
@@ -574,7 +468,7 @@ async function saveProfileChanges() {
         }
 
         // Send update to backend
-        const response = await fetch(`${getApiBaseUrl()}/volunteers/update`, {
+        const response = await fetch(`${API_BASE_URL}/volunteers/update`, {
             method: 'PUT',
             body: formData
         });
@@ -757,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Send to backend API
-                const response = await fetch(`${getApiBaseUrl()}/volunteers/signup`, {
+                const response = await fetch(`${API_BASE_URL}/volunteers/signup`, {
                     method: 'POST',
                     body: formData
                 });
@@ -820,7 +714,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             try {
                 // Call backend API to verify email
-                const response = await fetch(`${getApiBaseUrl()}/volunteers/login`, {
+                const response = await fetch(`${API_BASE_URL}/volunteers/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email, password: password })

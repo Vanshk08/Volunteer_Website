@@ -27,32 +27,6 @@ function setStoredRole(role) {
     localStorage.setItem('stafflyRole', role || 'volunteer');
 }
 
-function resolveLoginRole(email, selectedRole) {
-    const normalizedEmail = String(email || '').trim().toLowerCase();
-    const storedProfileRaw = localStorage.getItem('volunteerProfile');
-
-    if (selectedRole === 'head') {
-        return 'head';
-    }
-
-    if (normalizedEmail.includes('head')) {
-        return 'head';
-    }
-
-    if (storedProfileRaw) {
-        try {
-            const storedProfile = JSON.parse(storedProfileRaw);
-            if ((storedProfile?.email || '').toString().trim().toLowerCase() === normalizedEmail && (storedProfile?.role || '').toString().toLowerCase() === 'head') {
-                return 'head';
-            }
-        } catch (error) {
-            console.warn('Could not parse stored volunteer profile for role detection:', error);
-        }
-    }
-
-    return 'volunteer';
-}
-
 async function trackPageView(page) {
     try {
         await fetch(`${API_BASE_URL}/${page}`);
@@ -137,15 +111,46 @@ function closeLoginForm() {
     document.body.style.overflow = 'auto';
 }
 
+function normalizeVolunteerProfile(profile, fallbackEmail = '') {
+    const safeProfile = profile && typeof profile === 'object' ? profile : {};
+    const fullName = safeProfile.fullName
+        || safeProfile.full_name
+        || safeProfile.name
+        || [safeProfile.firstName, safeProfile.lastName, safeProfile.first_name, safeProfile.last_name].filter(Boolean).join(' ').trim();
+
+    const [firstName, ...restName] = String(fullName || '').trim().split(/\s+/).filter(Boolean);
+    const lastName = restName.join(' ');
+
+    return {
+        ...safeProfile,
+        fullName: fullName || '',
+        full_name: fullName || '',
+        fn: safeProfile.fn || safeProfile.firstName || safeProfile.first_name || firstName || '',
+        ln: safeProfile.ln || safeProfile.lastName || safeProfile.last_name || lastName || '',
+        firstName: safeProfile.firstName || safeProfile.fn || firstName || '',
+        lastName: safeProfile.lastName || safeProfile.ln || lastName || '',
+        email: safeProfile.email || fallbackEmail || '',
+        photoDataUrl: safeProfile.photoDataUrl || safeProfile.photo_url || safeProfile.photoUrl || safeProfile.avatarUrl || safeProfile.avatar || safeProfile.profilePic || safeProfile.profilePicUrl || '',
+    };
+}
+
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Frontend initialized. Backend API base URL:', API_BASE_URL);
+
+    const authAction = new URLSearchParams(window.location.search).get('auth');
 
     trackPageView('landing');
     
     // Check if user already has a profile
     if (localStorage.getItem('volunteerProfile')) {
         updateSignupButton();
+    }
+
+    if (authAction === 'login') {
+        openLoginForm();
+    } else if (authAction === 'signup') {
+        openVolunteerForm();
     }
     
     // Set up modal click outside handler for volunteer form
@@ -207,11 +212,100 @@ document.addEventListener('DOMContentLoaded', function() {
                     submitBtn.textContent = 'Submitting...';
                 }
                 
+                // Check if email is already registered
+                const emailVal = document.getElementById('email').value.trim();
+                try {
+                    const checkResp = await fetch(`${API_BASE_URL}/volunteers/check-email`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: emailVal })
+                    });
+                    const checkResult = await checkResp.json();
+                    if (checkResp.ok) {
+                        // If a full volunteer profile exists, prompt login
+                        if (checkResult.profileExists) {
+                            if (errorMessage) {
+                                const errorText = document.getElementById('errorText');
+                                if (errorText) errorText.textContent = 'An account already exists with this email. Please login.';
+                                errorMessage.classList.remove('d-none');
+                            }
+                            setTimeout(() => {
+                                closeVolunteerForm();
+                                openLoginForm();
+                                const loginEmail = document.getElementById('loginEmail');
+                                if (loginEmail) loginEmail.value = emailVal;
+                            }, 700);
+                            return false;
+                        }
+
+                        // If an Auth user exists but no profile row, ask user to login (they likely signed up via auth earlier)
+                        if (checkResult.authExists && !checkResult.profileExists) {
+                            // Attempt to restore/create the missing profile automatically
+                            try {
+                                const restoreForm = new FormData(form);
+                                restoreForm.set('fullName', document.getElementById('fullName').value);
+                                restoreForm.set('age', document.getElementById('age').value);
+                                restoreForm.set('email', document.getElementById('email').value);
+                                restoreForm.set('password', document.getElementById('password').value);
+                                restoreForm.set('phone', document.getElementById('phone').value);
+                                restoreForm.set('experience', document.getElementById('experience').value);
+                                restoreForm.set('description', document.getElementById('description').value);
+
+                                const restoreResp = await fetch(`${API_BASE_URL}/volunteers/complete-profile`, {
+                                    method: 'POST',
+                                    body: restoreForm
+                                });
+                                const restoreResult = await restoreResp.json();
+                                if (restoreResp.ok) {
+                                    const storedProfile = normalizeVolunteerProfile(restoreResult.user || restoreResult.data || {}, document.getElementById('email').value);
+                                    localStorage.setItem('volunteerProfile', JSON.stringify(storedProfile));
+                                    updateSignupButton();
+                                    // Redirect to app now that profile exists
+                                    setTimeout(() => { window.location.href = 'app.html'; }, 900);
+                                    return false;
+                                } else {
+                                    // If restore failed, fall back to prompting login
+                                    if (errorMessage) {
+                                        const errorText = document.getElementById('errorText');
+                                        if (errorText) errorText.textContent = restoreResult.error || 'Account exists but profile missing; please login.';
+                                        errorMessage.classList.remove('d-none');
+                                    }
+                                    setTimeout(() => {
+                                        closeVolunteerForm();
+                                        openLoginForm();
+                                        const loginEmail = document.getElementById('loginEmail');
+                                        if (loginEmail) loginEmail.value = emailVal;
+                                    }, 700);
+                                    return false;
+                                }
+                            } catch (e) {
+                                console.error('Profile restore failed:', e);
+                                // On errors, prompt login as a safe fallback
+                                if (errorMessage) {
+                                    const errorText = document.getElementById('errorText');
+                                    if (errorText) errorText.textContent = 'An account exists but profile setup is incomplete. Please login to continue.';
+                                    errorMessage.classList.remove('d-none');
+                                }
+                                setTimeout(() => {
+                                    closeVolunteerForm();
+                                    openLoginForm();
+                                    const loginEmail = document.getElementById('loginEmail');
+                                    if (loginEmail) loginEmail.value = emailVal;
+                                }, 700);
+                                return false;
+                            }
+                        }
+                    }
+                } catch (err) {
+                    console.warn('Email check failed, continuing signup:', err);
+                }
+
                 // Prepare FormData for multipart/form-data submission
                 const formDataToSend = new FormData(form);
                 formDataToSend.set('fullName', document.getElementById('fullName').value);
                 formDataToSend.set('age', document.getElementById('age').value);
                 formDataToSend.set('email', document.getElementById('email').value);
+                formDataToSend.set('password', document.getElementById('password').value);
                 formDataToSend.set('phone', document.getElementById('phone').value);
                 formDataToSend.set('experience', document.getElementById('experience').value);
                 formDataToSend.set('description', document.getElementById('description').value);
@@ -232,7 +326,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (successMessage) successMessage.classList.remove('d-none');
                 
                 // Store profile data in localStorage
-                localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
+                const storedProfile = normalizeVolunteerProfile(result.user || result.data || {}, document.getElementById('email').value);
+                localStorage.setItem('volunteerProfile', JSON.stringify(storedProfile));
                 
                 // Update button to Profile
                 updateSignupButton();
@@ -270,8 +365,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             
             const email = document.getElementById('loginEmail').value;
-            const selectedRole = (document.getElementById('loginRole')?.value || 'volunteer').toLowerCase();
-            const role = resolveLoginRole(email, selectedRole);
+            const password = document.getElementById('loginPassword').value;
             const loginSuccessMessage = document.getElementById('loginSuccessMessage');
             const loginErrorMessage = document.getElementById('loginErrorMessage');
             const loginErrorText = document.getElementById('loginErrorText');
@@ -281,23 +375,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (loginSuccessMessage) loginSuccessMessage.classList.add('d-none');
             if (loginErrorMessage) loginErrorMessage.classList.add('d-none');
 
-            if (role === 'head') {
-                setStoredRole('head');
-                localStorage.setItem('volunteerProfile', JSON.stringify({
-                    fullName: email.split('@')[0] || 'Head',
-                    email,
-                    role: 'head'
-                }));
-
-                if (loginSuccessMessage) {
-                    loginSuccessMessage.classList.remove('d-none');
-                    loginSuccessMessage.textContent = 'Head login successful! Redirecting...';
+            if (!email || !password) {
+                if (loginErrorText) {
+                    loginErrorText.textContent = 'Email and password are required.';
                 }
-
-                setTimeout(() => {
-                    window.location.href = 'head-dashboard.html';
-                }, 900);
-                return;
+                if (loginErrorMessage) {
+                    loginErrorMessage.classList.remove('d-none');
+                }
+                return false;
             }
             
             try {
@@ -312,17 +397,33 @@ document.addEventListener('DOMContentLoaded', function() {
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({ email, password })
                 });
                 
                 const result = await response.json();
-                
+
                 if (!response.ok) {
+                    // Handle specific backend cases to avoid confusing messages
+                    if (response.status === 404 && result.error && result.error.toString().toLowerCase().includes('volunteer profile not found')) {
+                        const loginErrorMessage = document.getElementById('loginErrorMessage');
+                        const loginErrorText = document.getElementById('loginErrorText');
+                        if (loginErrorText) loginErrorText.textContent = 'Account found but volunteer profile is missing. If you just signed up, wait a few seconds and try logging in again, or complete signup.';
+                        if (loginErrorMessage) loginErrorMessage.classList.remove('d-none');
+                        return false;
+                    }
+
+                    if (response.status === 401 && result.error && result.error.toString().toLowerCase().includes('already')) {
+                        // If backend says already signed in, redirect to app
+                        setStoredRole('volunteer');
+                        setTimeout(() => { window.location.href = 'app.html'; }, 800);
+                        return;
+                    }
+
                     throw new Error(result.error || 'Email not registered. Please sign up first.');
                 }
                 
                 // Store the profile data in localStorage
-                const profile = result.data || {};
+                const profile = normalizeVolunteerProfile(result.user || result.data || {}, email);
                 localStorage.setItem('volunteerProfile', JSON.stringify(profile));
 
                 // If backend marks this profile as Head, redirect to head dashboard

@@ -1,539 +1,748 @@
 <!DOCTYPE html>
-<html lang="en" data-api-base-url="https://volunteerwebsite-production-8fcc.up.railway.app/api">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Staffly - Event Hub Platform" />
-        <meta name="author" content="" />
-        <title>Staffly - Event Hub</title>
-        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-        <!-- Font Awesome icons (free version)-->
-        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
-        <!-- Google fonts-->
-        <link href="https://fonts.googleapis.com/css?family=Varela+Round" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="css/styles.css" rel="stylesheet" />
-        <link href="css/app.css" rel="stylesheet" />
-    </head>
-    <body id="page-top" class="app-page">
-        <!-- Navigation-->
-        <nav class="navbar navbar-expand-lg navbar-dark fixed-top bg-navbar" id="appNav">
-            <div class="container px-4 px-lg-5">
-                <a class="navbar-brand" href="index.html">
-                    Staffly
-                </a>
-                <button class="navbar-toggler navbar-toggler-right" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                    Menu
-                </button>
-                <div class="collapse navbar-collapse" id="navbarResponsive">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <button class="nav-link" onclick="switchTab('events')">
-                                Events
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" onclick="switchTab('dashboard')">
-                                Dashboard
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link" onclick="switchTab('chat')">
-                                Chat
-                            </button>
-                        </li>
-                        <li class="nav-item d-none" id="navCreateBtn">
-                            <button class="nav-link" onclick="openCreateEventModal()">
-                                Create Event
-                            </button>
-                        </li>
-                        <li class="nav-item" id="navSignupBtn">
-                            <button class="nav-link" onclick="openVolunteerForm()">
-                                Signup
-                            </button>
-                        </li>
-                        <li class="nav-item d-none" id="navLogoutBtn">
-                            <button class="nav-link" onclick="logout()">
-                                Logout
-                            </button>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Staffly — Volunteer Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --black:      #080808;
+  --surface:    #111111;
+  --surface2:   #181818;
+  --surface3:   #202020;
+  --white:      #f5f2ed;
+  --muted:      #3a3a3a;
+  --muted2:     #5a5a5a;
+  --muted3:     #888;
+  --border:     rgba(255,255,255,0.07);
+  --border2:    rgba(255,255,255,0.12);
+  --green:      #1dff8f;
+  --green-dim:  rgba(29,255,143,0.10);
+  --green-mid:  rgba(29,255,143,0.35);
+  --green-glow: rgba(29,255,143,0.20);
+  --red:        #ff4d4d;
+  --red-dim:    rgba(255,77,77,0.12);
+  --amber:      #f5a623;
+  --amber-dim:  rgba(245,166,35,0.12);
+  --blue:       #60a5fa;
+  --blue-dim:   rgba(96,165,250,0.12);
+  --serif:      'Instrument Serif', Georgia, serif;
+  --sans:       'DM Sans', sans-serif;
+  --radius:     10px;
+  --radius-lg:  16px;
+  --sidebar-w:  240px;
+  --header-h:   60px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; cursor:auto !important; }
+html { scroll-behavior:smooth; }
+body { background:var(--black); color:var(--white); font-family:var(--sans); overflow-x:hidden; min-height:100vh; cursor:auto; }
+#cursor { display:none !important; }
+.app { display:flex; min-height:100vh; }
+.sidebar { width:var(--sidebar-w); flex-shrink:0; background:var(--surface); border-right:1px solid var(--border); display:flex; flex-direction:column; position:fixed; top:0; left:0; bottom:0; z-index:50; transition:transform .3s ease; }
+.sidebar-logo { padding:22px 24px 20px; border-bottom:1px solid var(--border); font-family:var(--serif); font-size:20px; color:var(--white); text-decoration:none; display:block; letter-spacing:-.3px; }
+.sidebar-logo em { font-style:italic; color:var(--green); }
+.sidebar-profile { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+.sidebar-av { width:36px; height:36px; border-radius:50%; background:var(--surface3); border:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:var(--white); flex-shrink:0; letter-spacing:.5px; }
+.sidebar-av-name { font-size:13px; font-weight:500; color:var(--white); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sidebar-av-role { font-size:11px; color:var(--muted2); display:flex; align-items:center; gap:4px; margin-top:2px; }
+.role-dot { width:5px; height:5px; border-radius:50%; background:var(--green); display:inline-block; }
+.sidebar-nav { flex:1; padding:12px; overflow-y:auto; }
+.nav-group-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:12px 8px 6px; display:block; }
+.nav-item { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:var(--radius); font-size:13px; color:var(--muted3); cursor:none; transition:all .18s; border:1px solid transparent; margin-bottom:2px; text-decoration:none; background:none; width:100%; text-align:left; font-family:var(--sans); }
+.nav-item:hover { background:var(--surface2); color:var(--white); }
+.nav-item.active { background:var(--green-dim); color:var(--green); border-color:rgba(29,255,143,.15); }
+.nav-dot { width:5px; height:5px; border-radius:50%; background:var(--muted); flex-shrink:0; transition:background .18s; }
+.nav-item.active .nav-dot { background:var(--green); }
+.nav-item:hover .nav-dot { background:var(--white); }
+.nav-badge { margin-left:auto; background:var(--green); color:var(--black); font-size:10px; font-weight:600; padding:1px 7px; border-radius:20px; min-width:20px; text-align:center; }
+.nav-badge.amber { background:var(--amber); color:var(--black); }
+.nav-badge.muted { background:var(--surface3); color:var(--muted3); }
+.sidebar-footer { padding:16px 20px; border-top:1px solid var(--border); }
+.sidebar-footer-btn { width:100%; background:none; border:1px solid var(--border); color:var(--muted3); font-family:var(--sans); font-size:12px; padding:8px; border-radius:var(--radius); cursor:none; transition:all .18s; }
+.sidebar-footer-btn:hover { border-color:var(--border2); color:var(--white); }
+.main { margin-left:var(--sidebar-w); flex:1; display:flex; flex-direction:column; min-height:100vh; }
+.topbar { height:var(--header-h); background:rgba(8,8,8,.85); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; padding:0 32px; position:sticky; top:0; z-index:40; }
+.topbar-left { display:flex; align-items:center; gap:16px; }
+.topbar-right { display:flex; align-items:center; gap:12px; }
+.breadcrumb { font-size:12px; color:var(--muted2); display:flex; align-items:center; gap:6px; }
+.breadcrumb span { color:var(--white); }
+.topbar-btn { background:none; border:1px solid var(--border); color:var(--muted3); font-family:var(--sans); font-size:12px; padding:6px 14px; border-radius:20px; cursor:none; transition:all .18s; }
+.topbar-btn:hover { border-color:var(--border2); color:var(--white); }
+.topbar-btn.primary { background:var(--green); color:var(--black); border-color:transparent; font-weight:500; }
+.topbar-btn.primary:hover { box-shadow:0 0 18px var(--green-glow); }
+.mob-toggle { display:none; background:none; border:1px solid var(--border); color:var(--muted3); font-family:var(--sans); font-size:12px; padding:6px 12px; border-radius:8px; cursor:none; transition:all .15s; }
+.mob-toggle:hover { color:var(--white); border-color:var(--border2); }
+.content { flex:1; padding:28px 32px; }
+.tabs { display:flex; gap:0; border-bottom:1px solid var(--border); margin-bottom:24px; overflow-x:auto; scrollbar-width:none; }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { padding:10px 20px; font-size:13px; color:var(--muted2); cursor:none; border-bottom:2px solid transparent; transition:all .18s; white-space:nowrap; display:flex; align-items:center; gap:8px; margin-bottom:-1px; background:none; border-top:none; border-left:none; border-right:none; font-family:var(--sans); }
+.tab:hover { color:var(--white); }
+.tab.active { color:var(--green); border-bottom-color:var(--green); }
+.tab-count { background:var(--surface2); color:var(--muted3); font-size:10px; padding:1px 7px; border-radius:20px; }
+.tab.active .tab-count { background:var(--green-dim); color:var(--green); }
+.panel { display:none; }
+.panel.active { display:block; }
+.summary-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+.sum-item { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 20px; position:relative; overflow:hidden; transition:border-color .2s; }
+.sum-item:hover { border-color:var(--border2); }
+.sum-item::after { content:''; position:absolute; bottom:0; left:0; height:2px; width:0; transition:width .5s ease; }
+.sum-item:hover::after { width:100%; }
+.sum-item.green::after { background:var(--green); }
+.sum-item.amber::after { background:var(--amber); }
+.sum-item.blue::after  { background:var(--blue); }
+.sum-item.red::after   { background:var(--red); }
+.sum-val { font-family:var(--serif); font-size:30px; letter-spacing:-1px; line-height:1; margin-bottom:6px; }
+.sum-val.green { color:var(--green); }
+.sum-val.amber { color:var(--amber); }
+.sum-val.blue  { color:var(--blue); }
+.sum-val.red   { color:var(--red); }
+.sum-label { font-size:11px; color:var(--muted2); letter-spacing:.5px; text-transform:uppercase; }
+.sum-sub { font-size:11px; color:var(--muted2); margin-top:4px; }
+.overview-grid { display:grid; grid-template-columns:280px 1fr; gap:20px; align-items:start; }
+.profile-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; position:sticky; top:calc(var(--header-h) + 20px); }
+.profile-cover { height:76px; background:linear-gradient(135deg,#060e09 0%,#0b1d11 55%,#060e08 100%); position:relative; overflow:hidden; }
+.profile-cover-grid { position:absolute; inset:0; background-image: linear-gradient(rgba(29,255,143,.06) 1px,transparent 1px), linear-gradient(90deg,rgba(29,255,143,.06) 1px,transparent 1px); background-size:22px 22px; }
+.profile-cover::after { content:''; position:absolute; bottom:0; left:0; right:0; height:34px; background:linear-gradient(to bottom,transparent,var(--surface)); }
+.profile-body { padding:0 22px 22px; }
+.profile-av-row { display:flex; align-items:flex-end; justify-content:space-between; margin-top:-20px; margin-bottom:14px; }
+.profile-av { width:58px; height:58px; border-radius:50%; background:var(--surface3); border:2.5px solid var(--surface); outline:1px solid var(--border2); display:flex; align-items:center; justify-content:center; font-family:var(--serif); font-size:20px; color:var(--white); position:relative; z-index:1; }
+.profile-av-change { font-size:11px; color:var(--muted2); background:none; border:none; cursor:none; font-family:var(--sans); padding-bottom:2px; transition:color .15s; }
+.profile-av-change:hover { color:var(--green); }
+.profile-verified { display:flex; align-items:center; gap:5px; font-size:11px; color:var(--green); margin-bottom:5px; letter-spacing:.3px; }
+.profile-verified-dot { width:5px; height:5px; border-radius:50%; background:var(--green); }
+.profile-name { font-family:var(--serif); font-size:21px; letter-spacing:-.5px; line-height:1.1; margin-bottom:3px; }
+.profile-handle { font-size:12px; color:var(--muted2); margin-bottom:14px; letter-spacing:.1px; }
+.rating-row { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+.rating-track { flex:1; height:3px; background:var(--surface3); border-radius:20px; overflow:hidden; }
+.rating-fill { height:100%; border-radius:20px; background:var(--amber); transition:width .8s cubic-bezier(.22,1,.36,1); }
+.rating-score { font-size:13px; font-weight:500; color:var(--amber); white-space:nowrap; }
+.rating-reviews { font-size:11px; color:var(--muted2); white-space:nowrap; }
+.profile-divider { height:1px; background:var(--border); margin:14px 0; }
+.profile-meta { display:flex; flex-direction:column; gap:8px; }
+.profile-meta-row { display:flex; justify-content:space-between; align-items:baseline; font-size:12px; }
+.profile-meta-row .k { color:var(--muted3); }
+.profile-meta-row .v { color:var(--white); font-weight:400; }
+.profile-section-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.profile-about { font-size:12px; color:var(--muted3); line-height:1.75; font-weight:300; }
+.skills-list { display:flex; flex-wrap:wrap; gap:6px; }
+.skill-pill { font-size:11px; padding:3px 10px; border-radius:6px; border:1px solid var(--border2); color:var(--muted3); letter-spacing:.2px; transition:border-color .15s, color .15s; }
+.skill-pill:hover { border-color:var(--green-mid); color:var(--green); }
+.profile-edit-btn { width:100%; margin-top:18px; padding:9px; background:none; border:1px solid var(--border2); color:var(--muted3); border-radius:var(--radius); font-family:var(--sans); font-size:13px; cursor:none; transition:all .18s; }
+.profile-edit-btn:hover { border-color:var(--green-mid); color:var(--green); background:var(--green-dim); }
+.overview-right { display:flex; flex-direction:column; gap:20px; }
+.section-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+.section-block-head { padding:16px 22px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.section-block-title { font-size:14px; font-weight:500; letter-spacing:-.1px; }
+.section-block-action { font-size:12px; color:var(--green); background:none; border:none; cursor:none; font-family:var(--sans); transition:opacity .15s; padding:0; }
+.section-block-action:hover { opacity:.65; }
+.activity-list { padding:4px 0; }
+.activity-row { display:grid; grid-template-columns:3px 1fr auto; gap:0 16px; align-items:start; padding:13px 22px; border-bottom:1px solid var(--border); transition:background .15s; cursor:none; }
+.activity-row:last-child { border-bottom:none; }
+.activity-row:hover { background:var(--surface2); }
+.activity-accent { border-radius:20px; align-self:stretch; min-height:36px; }
+.activity-accent.green  { background:var(--green); }
+.activity-accent.amber  { background:var(--amber); }
+.activity-accent.blue   { background:var(--blue); }
+.activity-accent.red    { background:var(--red); }
+.activity-accent.muted  { background:var(--surface3); }
+.activity-accent.purple { background:#c084fc; }
+.activity-title { font-size:13px; font-weight:500; margin-bottom:3px; letter-spacing:-.1px; }
+.activity-sub { font-size:12px; color:var(--muted2); line-height:1.5; }
+.activity-time { font-size:11px; color:var(--muted3); white-space:nowrap; padding-top:2px; }
+.activity-status { display:inline-block; font-size:11px; padding:2px 9px; border-radius:20px; margin-top:5px; }
+.activity-status.green  { background:var(--green-dim); color:var(--green); }
+.activity-status.blue   { background:var(--blue-dim); color:var(--blue); }
+.activity-status.red    { background:var(--red-dim); color:var(--red); }
+.activity-status.amber  { background:var(--amber-dim); color:var(--amber); }
+.activity-status.muted  { background:var(--surface3); color:var(--muted3); }
+.activity-status.purple { background:rgba(192,132,252,.12); color:#c084fc; }
+.exp-display-list { padding:6px 22px 16px; }
+.exp-display-row { padding:13px 0; border-bottom:1px solid var(--border); }
+.exp-display-row:last-child { border-bottom:none; padding-bottom:0; }
+.exp-role { font-size:13px; font-weight:500; margin-bottom:3px; letter-spacing:-.1px; }
+.exp-org { font-size:12px; color:var(--muted2); margin-bottom:2px; }
+.exp-date { font-size:11px; color:var(--muted3); margin-bottom:6px; }
+.exp-desc { font-size:12px; color:var(--muted3); line-height:1.65; font-weight:300; }
+.filter-bar { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; }
+.search-wrap { flex:1; min-width:200px; }
+.search-wrap input { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 14px; font-family:var(--sans); font-size:13px; color:var(--white); outline:none; transition:border-color .2s; }
+.search-wrap input:focus { border-color:var(--green-mid); }
+.search-wrap input::placeholder { color:var(--muted); }
+.filter-select { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 12px; font-family:var(--sans); font-size:12px; color:var(--muted3); outline:none; cursor:none; }
+.events-list { display:flex; flex-direction:column; gap:8px; }
+.event-row { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px 20px; display:grid; grid-template-columns:4px 1fr auto; gap:0 18px; align-items:center; transition:all .18s; }
+.event-row:hover { border-color:var(--border2); background:var(--surface2); }
+.event-accent { border-radius:20px; align-self:stretch; min-height:44px; }
+.event-accent.green  { background:var(--green); }
+.event-accent.amber  { background:var(--amber); }
+.event-accent.red    { background:var(--red); }
+.event-accent.blue   { background:var(--blue); }
+.event-accent.muted  { background:var(--surface3); }
+.event-accent.purple { background:#c084fc; }
+.event-name { font-size:14px; font-weight:500; letter-spacing:-.1px; margin-bottom:4px; }
+.event-meta { font-size:12px; color:var(--muted2); display:flex; gap:14px; flex-wrap:wrap; }
+.event-right { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.event-status { font-size:11px; padding:3px 10px; border-radius:20px; white-space:nowrap; }
+.event-status.green  { background:var(--green-dim); color:var(--green); }
+.event-status.red    { background:var(--red-dim); color:var(--red); }
+.event-status.blue   { background:var(--blue-dim); color:var(--blue); }
+.event-status.amber  { background:var(--amber-dim); color:var(--amber); }
+.event-status.muted  { background:var(--surface3); color:var(--muted3); }
+.event-status.purple { background:rgba(192,132,252,.12); color:#c084fc; }
+.event-earning { font-size:13px; color:var(--amber); font-weight:500; }
+.event-date { font-size:11px; color:var(--muted3); }
+.earn-summary { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.earn-block { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px 22px; position:relative; overflow:hidden; transition:border-color .2s; }
+.earn-block:hover { border-color:var(--border2); }
+.earn-block::after { content:''; position:absolute; bottom:0; left:0; height:2px; width:0; transition:width .5s; }
+.earn-block.amber:hover::after { width:100%; background:var(--amber); }
+.earn-block.green:hover::after { width:100%; background:var(--green); }
+.earn-block.blue:hover::after { width:100%; background:var(--blue); }
+.earn-val { font-family:var(--serif); font-size:32px; letter-spacing:-1.5px; line-height:1; margin-bottom:6px; }
+.earn-val.amber { color:var(--amber); }
+.earn-val.green { color:var(--green); }
+.earn-val.blue { color:var(--blue); }
+.earn-label { font-size:11px; color:var(--muted2); text-transform:uppercase; letter-spacing:.8px; }
+.earn-sub { font-size:11px; color:var(--muted2); margin-top:5px; }
+.chart-wrap { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; margin-bottom:20px; }
+.chart-head { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.chart-title { font-size:14px; font-weight:500; }
+.period-btns { display:flex; gap:6px; }
+.period-btn { font-size:11px; padding:4px 12px; border-radius:20px; border:1px solid var(--border); background:none; color:var(--muted3); cursor:none; font-family:var(--sans); transition:all .15s; }
+.period-btn:hover { border-color:var(--border2); color:var(--white); }
+.period-btn.active { background:var(--green-dim); border-color:var(--green-mid); color:var(--green); }
+.chart-body { padding:24px; }
+.bars-row { display:flex; gap:6px; align-items:flex-end; height:100px; }
+.bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.bar-track { flex:1; width:100%; display:flex; align-items:flex-end; }
+.bar-fill { width:100%; border-radius:4px 4px 0 0; background:var(--surface3); position:relative; transition:height .6s cubic-bezier(.22,1,.36,1); }
+.bar-fill.has-val { background:var(--green); opacity:.7; }
+.bar-fill.has-val:hover { opacity:1; }
+.bar-fill:hover::after { content:attr(data-val); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); font-size:11px; color:var(--white); background:var(--surface2); border:1px solid var(--border2); padding:3px 8px; border-radius:6px; white-space:nowrap; z-index:10; }
+.bar-label { font-size:10px; color:var(--muted2); }
+.chart-foot { padding:12px 24px 16px; border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:baseline; }
+.chart-foot-label { font-size:12px; color:var(--muted2); }
+.chart-foot-val { font-family:var(--serif); font-size:22px; letter-spacing:-1px; color:var(--amber); }
+.breakdown-row { display:grid; grid-template-columns:4px 1fr auto; gap:0 16px; align-items:center; padding:13px 22px; border-bottom:1px solid var(--border); transition:background .15s; }
+.breakdown-row:last-child { border-bottom:none; }
+.breakdown-row:hover { background:var(--surface2); }
+.breakdown-accent { border-radius:20px; align-self:stretch; min-height:32px; }
+.breakdown-name { font-size:13px; font-weight:500; margin-bottom:3px; letter-spacing:-.1px; }
+.breakdown-sub { font-size:12px; color:var(--muted2); }
+.breakdown-val { font-size:14px; color:var(--amber); font-weight:500; white-space:nowrap; padding-left:12px; }
+.edit-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.form-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px 24px; }
+.form-card.full { grid-column:1/-1; }
+.form-card-title { font-size:13px; font-weight:500; margin-bottom:18px; padding-bottom:14px; border-bottom:1px solid var(--border); }
+.form-2col { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.form-group { margin-bottom:14px; }
+.form-group:last-child { margin-bottom:0; }
+.form-label { display:block; font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted2); margin-bottom:7px; }
+.form-input, .form-textarea, .form-select { width:100%; background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-family:var(--sans); font-size:13px; color:var(--white); outline:none; transition:border-color .2s; }
+.form-input:focus, .form-textarea:focus, .form-select:focus { border-color:var(--green-mid); }
+.form-input::placeholder, .form-textarea::placeholder { color:var(--muted); }
+.form-textarea { height:96px; resize:vertical; line-height:1.65; }
+.exp-edit-entry { padding:16px 0; border-bottom:1px solid var(--border); display:grid; grid-template-columns:1fr auto; gap:12px; }
+.exp-edit-entry:last-child { border-bottom:none; }
+.exp-remove-btn { background:none; border:none; color:var(--muted2); font-size:11px; cursor:none; font-family:var(--sans); padding:0; transition:color .15s; align-self:flex-start; padding-top:2px; white-space:nowrap; }
+.exp-remove-btn:hover { color:var(--red); }
+.add-exp-btn { width:100%; margin-top:14px; padding:10px; background:none; border:1px dashed var(--border2); color:var(--muted2); border-radius:var(--radius); font-family:var(--sans); font-size:13px; cursor:none; transition:all .18s; }
+.add-exp-btn:hover { border-color:var(--green-mid); color:var(--green); background:var(--green-dim); }
+.form-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:20px; border-top:1px solid var(--border); }
+.btn-save { background:var(--green); color:var(--black); border:none; padding:10px 26px; border-radius:20px; font-family:var(--sans); font-size:13px; font-weight:500; cursor:none; transition:all .2s; }
+.btn-save:hover { box-shadow:0 0 18px var(--green-glow); }
+.btn-cancel { background:none; border:1px solid var(--border); color:var(--muted3); padding:10px 20px; border-radius:20px; font-family:var(--sans); font-size:13px; cursor:none; transition:all .18s; }
+.btn-cancel:hover { border-color:var(--border2); color:var(--white); }
+.empty { text-align:center; padding:56px 20px; color:var(--muted2); font-size:14px; line-height:1.8; }
+.toast { position:fixed; bottom:28px; right:28px; z-index:500; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius); padding:12px 18px; font-size:13px; display:flex; align-items:center; gap:10px; box-shadow:0 8px 32px rgba(0,0,0,.5); transform:translateY(80px); opacity:0; transition:all .3s cubic-bezier(.22,1,.36,1); pointer-events:none; }
+.toast.show { transform:translateY(0); opacity:1; }
+.toast-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.sidebar-overlay { display:none; position:fixed; inset:0; z-index:49; background:rgba(0,0,0,.5); opacity:0; pointer-events:none; transition:opacity .2s; }
+.sidebar-overlay.show { opacity:1; pointer-events:auto; }
+@media(max-width:1100px){ .overview-grid { grid-template-columns:260px 1fr; } }
+@media(max-width:900px){ .sidebar { transform:translateX(-100%); } .sidebar.open { transform:translateX(0); box-shadow:8px 0 40px rgba(0,0,0,.6); } .sidebar-overlay { display:block; } .main { margin-left:0; } .mob-toggle { display:block; } .overview-grid { grid-template-columns:1fr; } .profile-card { position:static; } .summary-strip { grid-template-columns:repeat(2,1fr); } .earn-summary { grid-template-columns:1fr 1fr; } .content { padding:20px 16px; } .topbar { padding:0 16px; } .edit-grid,.form-2col { grid-template-columns:1fr; }}
+@media(max-width:500px){ .summary-strip,.earn-summary { grid-template-columns:1fr; } }
+.app-shell { min-height:100vh; background:linear-gradient(180deg,#0e0e0e 0%,#080808 100%); color:var(--white); }
+.app-shell-events .app { display:none; }
+.app-shell-dashboard .app { display:flex; }
+.app-shell-bar { position:sticky; top:0; z-index:80; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:16px 24px; background:rgba(8,8,8,.92); backdrop-filter:blur(18px); border-bottom:1px solid var(--border); }
+.app-shell-brand { font-family:var(--serif); font-size:22px; color:var(--white); text-decoration:none; letter-spacing:-.3px; }
+.app-shell-brand em { font-style:italic; color:var(--green); }
+.app-shell-tabs { display:flex; gap:8px; flex-wrap:wrap; }
+.app-shell-tab { background:none; border:1px solid var(--border); color:var(--muted3); border-radius:20px; padding:8px 14px; font:500 12px var(--sans); cursor:none; transition:all .18s; }
+.app-shell-tab:hover { color:var(--white); border-color:var(--border2); }
+.app-shell-tab.active { color:var(--black); background:var(--green); border-color:transparent; }
+.app-shell-logout { background:none; border:1px solid var(--border); color:var(--muted3); border-radius:20px; padding:8px 14px; font:500 12px var(--sans); cursor:none; }
+.app-shell-logout:hover { color:var(--white); border-color:var(--border2); }
+.shell-panel { display:none; padding:28px 24px 40px; }
+.shell-panel.active { display:block; }
+.shell-wrap { max-width:1200px; margin:0 auto; }
+.shell-hero { display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:22px; }
+.shell-kicker { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted2); margin-bottom:8px; }
+.shell-title { font-family:var(--serif); font-size:44px; letter-spacing:-1px; line-height:1; }
+.shell-subtitle { max-width:720px; margin-top:10px; color:var(--muted2); line-height:1.7; font-size:14px; }
+.shell-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.shell-card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; }
+.shell-card-body { padding:18px 18px 20px; }
+.shell-event-meta { display:flex; justify-content:space-between; gap:12px; font-size:12px; color:var(--muted2); margin-bottom:10px; }
+.shell-event-title { font-size:18px; font-weight:500; margin-bottom:8px; }
+.shell-event-desc { font-size:13px; line-height:1.65; color:var(--muted3); margin-bottom:14px; }
+.shell-event-btn { width:100%; background:var(--green); color:var(--black); border:none; border-radius:20px; padding:10px 14px; font:500 13px var(--sans); }
+.shell-chat { min-height:calc(100vh - 140px); display:grid; place-items:center; }
+.shell-coming { max-width:640px; width:100%; background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:36px 28px; text-align:center; }
+.shell-coming h2 { font-family:var(--serif); font-size:42px; letter-spacing:-1px; margin-bottom:10px; }
+.shell-coming p { color:var(--muted2); font-size:14px; line-height:1.7; }
+@media(max-width:900px){ .app-shell-bar { flex-wrap:wrap; } .shell-grid { grid-template-columns:1fr; } .shell-title { font-size:34px; } }
+</style>
+</head>
+<body class="app-shell-events">
+<div class="app-shell">
+  <div class="app-shell-bar">
+    <a class="app-shell-brand" href="index.html">Staff<em>ly</em></a>
+    <div class="app-shell-tabs">
+      <button class="app-shell-tab active" data-shell-tab="events" onclick="switchShellTab('events', this)">Events</button>
+      <button class="app-shell-tab" data-shell-tab="dashboard" onclick="switchShellTab('dashboard', this)">Volunteer Dashboard</button>
+      <button class="app-shell-tab" data-shell-tab="chat" onclick="switchShellTab('chat', this)">Chat</button>
+    </div>
+    <div class="topbar-right">
+      <button id="signupTopBtn" class="topbar-btn primary" type="button" onclick="window.location.href='index.html?auth=signup'">Sign Up</button>
+      <button id="loginTopBtn" class="topbar-btn" type="button" onclick="window.location.href='index.html?auth=login'">Login</button>
+      <button id="signoutTopBtn" class="topbar-btn" style="display:none;" type="button" onclick="logout()">Sign Out</button>
+      <button class="app-shell-logout" type="button" onclick="window.location.href='index.html'">Back to Home</button>
+    </div>
+  </div>
 
-        <!-- Create Event Modal (Head only) -->
-        <div class="modal fade" id="createEventModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content bg-dark text-white">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Create Event</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="createEventForm">
-                            <div class="mb-3">
-                                <label class="form-label">Event Name</label>
-                                <input type="text" id="evt-name" class="form-control" required />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Location</label>
-                                <input type="text" id="evt-location" class="form-control" required />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Pay per Volunteer</label>
-                                <input type="number" id="evt-pay" class="form-control" min="0" />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Time / Date</label>
-                                <input type="datetime-local" id="evt-time" class="form-control" required />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Requirements (JSON or notes)</label>
-                                <textarea id="evt-reqs" class="form-control" rows="3" placeholder='{"volunteers":50,"supervisors":5,"organisers":3}'></textarea>
-                            </div>
-                            <div class="text-end">
-                                <button type="submit" class="btn btn-primary">Create Event</button>
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                            </div>
-                        </form>
-                        <div id="createEventMsg" class="mt-2"></div>
-                    </div>
-                </div>
-            </div>
+  <section class="shell-panel active" id="shell-events">
+    <div class="shell-wrap">
+      <div class="shell-hero">
+        <div>
+          <div class="shell-kicker">Events</div>
+          <div class="shell-title">Browse verified opportunities</div>
+          <div class="shell-subtitle">Pick a role, review the details, and join events that match your skills.</div>
         </div>
+      </div>
+      <div class="shell-grid"></div>
+    </div>
+  </section>
 
-        <!-- Tab Navigation -->
-        <div class="app-container">
-            <div class="tabs-header">
-                <div class="container px-4 px-lg-5">
-                    <div class="tabs-navigation">
-                        <button class="tab-btn active" onclick="switchTab('events')" data-tab="events">
-                            <span>Events</span>
-                        </button>
-                        <button class="tab-btn" onclick="switchTab('dashboard')" data-tab="dashboard">
-                            <span>Volunteer Dashboard</span>
-                        </button>
-                        <button class="tab-btn" onclick="switchTab('chat')" data-tab="chat">
-                            <span>Chat</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
+  <section class="shell-panel" id="shell-chat">
+    <div class="shell-wrap shell-chat">
+      <div class="shell-coming">
+        <h2>Chat coming soon</h2>
+        <p>Real-time volunteer messaging is being prepared for a future update.</p>
+      </div>
+    </div>
+  </section>
 
-            <!-- Tab Content -->
-            <div class="tabs-content">
-                <!-- Events Tab -->
-                <div id="events-tab" class="tab-content active">
-                    <div class="events-header">
-                        <div class="container px-4 px-lg-5">
-                            <h1>Upcoming Events</h1>
-                            <p>Browse and apply for volunteer opportunities</p>
-                        </div>
-                    </div>
+  <section class="shell-panel" id="shell-dashboard">
 
-                    <div class="events-container">
-                        <div class="container px-4 px-lg-5">
-                            <div class="filter-section">
-                                <h3 class="text-white mb-4">Filter Events</h3>
-                                <div class="filter-buttons">
-                                    <button class="filter-btn active" onclick="filterEvents('all')">All Events</button>
-                                    <button class="filter-btn" onclick="filterEvents('music')">Music</button>
-                                    <button class="filter-btn" onclick="filterEvents('tech')">Technology</button>
-                                    <button class="filter-btn" onclick="filterEvents('sports')">Sports</button>
-                                </div>
-                            </div>
+<div id="cursor"></div><div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">    <a href="#" class="sidebar-logo">Staff<em>ly</em></a>
+    <div class="sidebar-profile">      <div class="sidebar-av" id="sb-initials">AK</div>      <div>        <div class="sidebar-av-name" id="sb-name">Amandeep Kaur</div>        <div class="sidebar-av-role"><span class="role-dot"></span> <span id="sb-role">Amandeep Kaur</span></div>      </div>    </div>
+    <nav class="sidebar-nav">      <span class="nav-group-label">Dashboard</span>      <button class="nav-item active" data-tab="overview" onclick="switchTab('overview',this)">        <span class="nav-dot"></span> Overview      </button>      <button class="nav-item" data-tab="events" onclick="switchTab('events',this)">        <span class="nav-dot"></span> My Events        <span class="nav-badge" id="nb-events">0</span>      </button>      <button class="nav-item" data-tab="earnings" onclick="switchTab('earnings',this)">        <span class="nav-dot"></span> Earnings      </button>      <span class="nav-group-label">Account</span>      <button class="nav-item" data-tab="edit" onclick="switchTab('edit',this)">        <span class="nav-dot"></span> Edit Profile      </button>      <button class="nav-item">        <span class="nav-dot"></span> Notifications        <span class="nav-badge amber">0</span>      </button>      <button class="nav-item">        <span class="nav-dot"></span> Settings      </button>    </nav>
+    <div class="sidebar-footer">      <button class="sidebar-footer-btn" onclick="logout()">Sign out</button>    </div>  </aside>
+  <div class="main">
+    <header class="topbar">      <div class="topbar-left">        <button class="mob-toggle" onclick="openSidebar()">Menu</button>        <div class="breadcrumb">Staffly <span>/</span> <span id="breadcrumb-label">Overview</span></div>      </div>      <div class="topbar-right">        <button class="topbar-btn" onclick="switchTab('events',null)">Browse Events</button>        <button class="topbar-btn primary" onclick="switchTab('edit',null)">Edit Profile</button>      </div>    </header>
+    <div class="content">
+      <div class="tabs" role="tablist">        <button class="tab active" data-tab="overview" onclick="switchTab('overview',this)" role="tab">Overview</button>        <button class="tab" data-tab="events" onclick="switchTab('events',this)" role="tab">My Events <span class="tab-count" id="tc-events">0</span></button>        <button class="tab" data-tab="earnings" onclick="switchTab('earnings',this)" role="tab">Earnings</button>        <button class="tab" data-tab="edit" onclick="switchTab('edit',this)" role="tab">Edit Profile</button>      </div>
+      <div id="panel-overview" class="panel active">
+        <div class="summary-strip">          <div class="sum-item green">            <div class="sum-val green" id="s-applied">0</div>            <div class="sum-label">Events Applied</div>            <div class="sum-sub">+0 this month</div>          </div>          <div class="sum-item amber">            <div class="sum-val amber" id="s-earn">₹0</div>            <div class="sum-label">Total Earned</div>            <div class="sum-sub">Lifetime earnings</div>          </div>          <div class="sum-item blue">            <div class="sum-val blue" id="s-rating">0.0</div>            <div class="sum-label">Your Rating</div>            <div class="sum-sub">0 reviews</div>          </div>          <div class="sum-item green">            <div class="sum-val green" id="s-hours">0</div>            <div class="sum-label">Hours Logged</div>            <div class="sum-sub">Across 0 events</div>          </div>        </div>
+        <div class="overview-grid">
+          <div class="profile-card">            <div class="profile-cover"><div class="profile-cover-grid"></div></div>            <div class="profile-body">              <div class="profile-av-row">                <div class="profile-av" id="pav-display">V</div>                <button class="profile-av-change" onclick="switchTab('edit',null)">Change photo</button>              </div>              <div class="profile-verified"><span class="profile-verified-dot"></span> Verified Volunteer</div>              <div class="profile-name" id="p-name">Volunteer</div>              <div class="profile-handle" id="p-handle">N/A</div>              <div class="rating-row">                <div class="rating-track"><div class="rating-fill" id="rating-fill" style="width:0%"></div></div>                <span class="rating-score" id="p-rating">0.0</span>                <span class="rating-reviews">(0 reviews)</span>              </div>              <div class="profile-divider"></div>              <div class="profile-meta">                <div class="profile-meta-row"><span class="k">Age</span><span class="v" id="pm-age">N/A</span></div>                <div class="profile-meta-row"><span class="k">Location</span><span class="v" id="pm-loc">N/A</span></div>                <div class="profile-meta-row"><span class="k">Events completed</span><span class="v" id="pm-events">0</span></div>                <div class="profile-meta-row"><span class="k">Hours logged</span><span class="v" id="pm-hours">0 hrs</span></div>                <div class="profile-meta-row"><span class="k">Member since</span><span class="v" id="pm-since">N/A</span></div>              </div>              <div class="profile-divider"></div>              <div class="profile-section-label">About</div>              <div class="profile-about" id="p-about">No description provided.</div>              <div class="profile-divider"></div>              <div class="profile-section-label">Skills</div>              <div class="skills-list" id="p-skills"></div>              <button class="profile-edit-btn" onclick="switchTab('edit',null)">Edit profile</button>            </div>          </div>
+          <div class="overview-right">
+            <div class="section-block">              <div class="section-block-head">                <div class="section-block-title">Recent Activity</div>                <button class="section-block-action" onclick="switchTab('events',null)">View all</button>              </div>              <div class="activity-list" id="activity-list"></div>            </div>
+            <div class="section-block">              <div class="section-block-head">                <div class="section-block-title">Past Experience</div>                <button class="section-block-action" onclick="switchTab('edit',null)">Edit</button>              </div>              <div class="exp-display-list" id="exp-display"></div>            </div>
+          </div>        </div>      </div>
+      <div id="panel-events" class="panel">        <div class="filter-bar">          <div class="search-wrap">            <input type="text" id="ev-search" placeholder="Search events..." oninput="renderEvents()">          </div>          <select class="filter-select" id="ev-filter" onchange="renderEvents()">            <option value="all">All status</option>            <option value="pending">Pending</option>            <option value="accepted">Accepted</option>            <option value="rejected">Rejected</option>            <option value="completed">Completed</option>            <option value="supervisor">Supervisor</option>            <option value="organiser">Organiser</option>          </select>        </div>        <div class="events-list" id="ev-list"></div>      </div>
+      <div id="panel-earnings" class="panel">        <div class="earn-summary" id="earn-summary"></div>        <div class="chart-wrap">          <div class="chart-head">            <div class="chart-title">Monthly Earnings</div>            <div class="period-btns">              <button class="period-btn active" onclick="setPeriod('2026',this)">2026</button>              <button class="period-btn" onclick="setPeriod('2025',this)">2025</button>            </div>          </div>          <div class="chart-body">            <div class="bars-row" id="bars-row"></div>          </div>          <div class="chart-foot">            <span class="chart-foot-label">Total this year</span>            <span class="chart-foot-val" id="chart-total">₹4,200</span>          </div>        </div>        <div class="section-block">          <div class="section-block-head"><div class="section-block-title">Earnings Breakdown</div></div>          <div id="earn-breakdown"></div>        </div>      </div>
+      <div id="panel-edit" class="panel">        <div class="edit-grid">
+          <div class="form-card">            <div class="form-card-title">Personal Information</div>            <div class="form-group">              <label class="form-label">Profile Photo</label>              <div id="editAvatarDisplay" class="profile-edit-avatar"></div>              <input class="form-input" id="editProfilePicEdit" type="file" accept="image/*">            </div>            <div class="form-2col">              <div class="form-group">                <label class="form-label" for="f-fn">First Name</label>                <input class="form-input" id="f-fn" value="Amandeep">              </div>              <div class="form-group">                <label class="form-label" for="f-ln">Last Name</label>                <input class="form-input" id="f-ln" value="Kaur">              </div>            </div>            <div class="form-2col">              <div class="form-group">                <label class="form-label" for="f-age">Age</label>                <input class="form-input" id="f-age" type="number" value="26">              </div>              <div class="form-group">                <label class="form-label" for="f-loc">Location</label>                <input class="form-input" id="f-loc" value="Chandigarh, India">              </div>            </div>            <div class="form-group">              <label class="form-label" for="f-email">Email</label>              <input class="form-input" id="f-email" type="email" value="amandeep@email.com">            </div>            <div class="form-group">              <label class="form-label" for="f-phone">Phone</label>              <input class="form-input" id="f-phone" value="+91 98765 43210">            </div>          </div>
+          <div class="form-card">            <div class="form-card-title">About &amp; Skills</div>            <div class="form-group">              <label class="form-label" for="f-about">About</label>              <textarea class="form-textarea" id="f-about">Passionate about community-driven events. Background in event logistics and first aid. Available weekends and public holidays.</textarea>            </div>            <div class="form-group">              <label class="form-label" for="f-skills">Skills (comma separated)</label>              <input class="form-input" id="f-skills" value="Event Logistics, First Aid, Registration, Photography, Crowd Management">            </div>            <div class="form-group">              <label class="form-label" for="f-avail">Availability</label>              <select class="form-select" id="f-avail">                <option>Weekends only</option>                <option>Weekdays only</option>                <option selected>Flexible</option>                <option>Full-time</option>              </select>            </div>          </div>
+          <div class="form-card full">            <div class="form-card-title">Past Experience</div>            <div id="exp-edit-list"></div>            <button class="add-exp-btn" onclick="addExp()">Add experience entry</button>          </div>
+        </div>        <div class="form-actions">          <button class="btn-cancel" type="button" onclick="switchTab('overview',null)">Cancel</button>          <button id="btnSaveProfile" class="btn-save" type="button" onclick="saveProfileHandler(this)">Save changes</button>        </div>      </div>
+    </div>
+  </div>
+</div>
+</section></div>
+<div class="toast" id="toast">  <div class="toast-dot" id="toast-dot"></div>  <span id="toast-msg"></span></div>
+<script>
+// Ensure API base is available on this page
+const API_BASE_URL = window.API_BASE_URL || document.documentElement.dataset.apiBaseUrl || 'http://localhost:3001/api';
+function switchShellTab(tabName, triggerEl) {
+  const shellPanels = document.querySelectorAll('.shell-panel');
+  shellPanels.forEach(panel => panel.classList.remove('active'));
+  document.querySelectorAll('.app-shell-tab').forEach(button => button.classList.remove('active'));
+  const selectedPanel = document.getElementById(`shell-${tabName}`);
+  if (selectedPanel) selectedPanel.classList.add('active');
+  if (triggerEl) triggerEl.classList.add('active');
+  document.body.classList.remove('app-shell-events', 'app-shell-dashboard', 'app-shell-chat');
+  document.body.classList.add(`app-shell-${tabName}`);
+}
 
-                            <div class="events-grid" id="eventsGrid">
-                                <!-- Events will be loaded here by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
+function getStoredProfile() {
+  try {
+    const raw = localStorage.getItem('volunteerProfile');
+    return raw ? JSON.parse(raw) : {};
+  } catch (error) {
+    return {};
+  }
+}
 
-                <!-- Dashboard Tab -->
-                <div id="dashboard-tab" class="tab-content">
-                    <!-- Dashboard Sidebar -->
-                    <aside class="dashboard-sidebar" id="dashboardSidebar">
-                        <div class="sidebar-header">
-                            <div class="profile-avatar" id="sidebarAvatar">
-                            </div>
-                            <div class="profile-info">
-                                <h5 id="sidebarName">Volunteer</h5>
-                                <p id="sidebarEmail">volunteer@example.com</p>
-                            </div>
-                        </div>
+function splitName(fullName) {
+  const parts = String(fullName || '').trim().split(/\s+/).filter(Boolean);
+  return {
+    firstName: parts[0] || '',
+    lastName: parts.slice(1).join(' '),
+  };
+}
 
-                        <ul class="dashboard-menu">
-                            <li class="menu-item active" onclick="showDashboardSection('overview')">
-                                <a href="#">Overview</a>
-                            </li>
-                            <li class="menu-item" onclick="showDashboardSection('profile')">
-                                <a href="#">My Profile</a>
-                            </li>
-                            <li class="menu-item" onclick="showDashboardSection('applications')">
-                                <a href="#">My Applications</a>
-                            </li>
-                            <li class="menu-item" onclick="showDashboardSection('hours')">
-                                <a href="#">Hours Logged</a>
-                            </li>
-                            <li class="menu-item" onclick="showDashboardSection('earnings')">
-                                <a href="#">Earnings</a>
-                            </li>
-                            <li class="menu-item" onclick="logout()">
-                                <a href="#">Logout</a>
-                            </li>
-                        </ul>
-                    </aside>
+const VOL = getStoredProfile();
+const displayName = VOL.fullName || VOL.full_name || VOL.name || [VOL.firstName, VOL.lastName, VOL.first_name, VOL.last_name].filter(Boolean).join(' ');
+const nameParts = splitName(displayName);
+const PROFILE = {
+  fn: nameParts.firstName || VOL.firstName || '',
+  ln: nameParts.lastName || VOL.lastName || '',
+  age: VOL.age || '',
+  loc: VOL.location || VOL.city || VOL.address || VOL.loc || '',
+  email: VOL.email || '',
+  phone: VOL.phone || VOL.contact || '',
+  about: VOL.description || VOL.about || '',
+  skills: Array.isArray(VOL.skills)
+    ? VOL.skills
+    : String(VOL.skills || '').split(',').map(s => s.trim()).filter(Boolean),
+  rating: Number(VOL.rating || 0),
+  ratingCount: Number(VOL.ratingCount || VOL.reviewCount || 0),
+};
 
-                    <!-- Dashboard Content -->
-                    <div class="dashboard-main">
-                        <!-- No Profile Content -->
-                        <div id="noDashboardContent" class="no-profile-container">
-                            <div class="container px-4 px-lg-5 h-100">
-                                <div class="d-flex align-items-center justify-content-center h-100">
-                                    <div class="no-profile text-center">
-                                        <div class="no-profile-icon">
-                                        </div>
-                                        <h2>No Profile Found</h2>
-                                        <p>Please sign up first to view your dashboard.</p>
-                                        <button class="btn btn-primary btn-lg mt-4" onclick="openVolunteerForm()">
-                                            Create Profile
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+let EXPS = Array.isArray(VOL.experience)
+  ? VOL.experience.map((entry, index) => ({
+      id: index + 1,
+      role: entry.role || entry.title || '',
+      org: entry.org || entry.organization || '',
+      date: entry.date || entry.year || '',
+      desc: entry.desc || entry.description || '',
+    }))
+  : typeof VOL.experience === 'string' && VOL.experience.trim()
+    ? [{ id: 1, role: 'Past Experience', org: 'Volunteer Profile', date: 'Current', desc: VOL.experience.trim() }]
+    : [];
 
-                        <!-- Profile Found Content -->
-                        <div id="dashboardContent" class="dashboard-content">
-                            <!-- Overview Section -->
-                            <div id="overview-section" class="dashboard-section active">
-                                <div class="dashboard-header-top">
-                                    <h1>Welcome to Your Dashboard</h1>
-                                    <p id="welcomeMessage">Hello Volunteer, welcome back!</p>
-                                </div>
+const EVENTS = [];
+const MONTHLY = {
+  '2026': [{m:'Jan',v:0},{m:'Feb',v:0},{m:'Mar',v:0},{m:'Apr',v:0},{m:'May',v:0},{m:'Jun',v:0},{m:'Jul',v:0},{m:'Aug',v:0},{m:'Sep',v:0},{m:'Oct',v:0},{m:'Nov',v:0},{m:'Dec',v:0}],
+  '2025': [{m:'Jan',v:0},{m:'Feb',v:0},{m:'Mar',v:0},{m:'Apr',v:0},{m:'May',v:0},{m:'Jun',v:0},{m:'Jul',v:0},{m:'Aug',v:0},{m:'Sep',v:0},{m:'Oct',v:0},{m:'Nov',v:0},{m:'Dec',v:0}],
+};
+let activePeriod = '2026';
+let expSeq = EXPS.length + 1;
+const AC = { accepted:'green', pending:'muted', rejected:'red', completed:'blue', supervisor:'blue', organiser:'purple' };
+const LBL = { accepted:'Accepted', pending:'Pending', rejected:'Rejected', completed:'Completed', supervisor:'Supervisor', organiser:'Organiser' };
+function getProfilePhotoUrl(profile) {
+  return profile.photoDataUrl || profile.photo_url || profile.photoUrl || profile.avatarUrl || profile.avatar || profile.profilePic || profile.profilePicUrl || '';
+}
 
-                                <!-- Statistics Cards -->
-                                <div class="statistics-grid">
-                                    <div class="stat-card">
-                                        <div class="stat-icon" style="background: linear-gradient(135deg, #64a19d, #50817e);">
-                                        </div>
-                                        <div class="stat-content">
-                                            <div class="stat-value" id="appliedCount">0</div>
-                                            <div class="stat-label">Events Applied</div>
-                                        </div>
-                                    </div>
+function formatMemberSince(profile) {
+  const rawValue = profile.created_at || profile.createdAt || profile.joined_at || profile.joinedAt || profile.memberSince || profile.signupDate || profile.registeredAt || '';
+  if (!rawValue) return 'N/A';
+  const date = new Date(rawValue);
+  if (Number.isNaN(date.getTime())) return String(rawValue);
+  return new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(date);
+}
 
-                                    <div class="stat-card">
-                                        <div class="stat-icon" style="background: linear-gradient(135deg, #7464a1, #5a4d7f);">
-                                        </div>
-                                        <div class="stat-content">
-                                            <div class="stat-value" id="hoursCount">0</div>
-                                            <div class="stat-label">Hours Logged</div>
-                                        </div>
-                                    </div>
+function setAvatarContent(elementId, photoUrl, fallbackText, altText) {
+  const element = document.getElementById(elementId);
+  if (!element) return;
+  element.innerHTML = '';
+  if (photoUrl) {
+    const image = document.createElement('img');
+    image.src = photoUrl;
+    image.alt = altText || fallbackText || 'Profile photo';
+    image.style.width = '100%';
+    image.style.height = '100%';
+    image.style.borderRadius = '50%';
+    image.style.objectFit = 'cover';
+    element.appendChild(image);
+    return;
+  }
+  element.textContent = fallbackText || 'V';
+}
 
-                                    <div class="stat-card">
-                                        <div class="stat-icon" style="background: linear-gradient(135deg, #28a745, #20c997);">
-                                        </div>
-                                        <div class="stat-content">
-                                            <div class="stat-value" id="ratingCount">4.5</div>
-                                            <div class="stat-label">Rating</div>
-                                        </div>
-                                    </div>
+function setEditPhotoPreview(photoUrl, fallbackText, altText) {
+  const element = document.getElementById('editAvatarDisplay');
+  if (!element) return;
+  setAvatarContent('editAvatarDisplay', photoUrl, fallbackText, altText);
+}
 
-                                    <div class="stat-card">
-                                        <div class="stat-icon" style="background: linear-gradient(135deg, #ffc107, #ff9800);">
-                                        </div>
-                                        <div class="stat-content">
-                                            <div class="stat-value" id="upcomingCount">0</div>
-                                            <div class="stat-label">Upcoming Events</div>
-                                        </div>
-                                    </div>
-                                </div>
+function updateTopbarAuthButtons() {
+  try {
+    const signupBtn = document.getElementById('signupTopBtn');
+    const loginBtn = document.getElementById('loginTopBtn');
+    const signoutBtn = document.getElementById('signoutTopBtn');
+    const profile = getStoredProfile();
+    const signedIn = profile && Object.keys(profile).length > 0;
+    if (signupBtn && loginBtn && signoutBtn) {
+      if (signedIn) {
+        signupBtn.style.display = 'none';
+        loginBtn.style.display = 'none';
+        signoutBtn.style.display = 'inline-block';
+      } else {
+        signupBtn.style.display = 'inline-block';
+        loginBtn.style.display = 'inline-block';
+        signoutBtn.style.display = 'none';
+      }
+    }
+  } catch (e) {
+    console.warn('updateTopbarAuthButtons error:', e);
+  }
+}
 
-                                <!-- Quick Stats Section -->
-                                <div class="quick-stats">
-                                    <div class="quick-stat-box">
-                                        <h3>Profile Completion</h3>
-                                        <div class="progress">
-                                            <div id="profileProgress" class="progress-bar" style="width: 100%"></div>
-                                        </div>
-                                        <p id="profileStatus">100% Complete</p>
-                                    </div>
-                                </div>
-                            </div>
+function saveProfileHandler(btn) {
+  try {
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+    }
+    // Call existing saveProfile which updates localStorage and UI
+    try {
+      saveProfile();
+    } catch (err) {
+      console.error('saveProfile threw:', err);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Save changes';
+      }
+      showToast('Error saving profile', 'var(--red)');
+      return;
+    }
 
-                            <!-- Profile Section -->
-                            <div id="profile-section" class="dashboard-section" style="display: none;">
-                                <div class="dashboard-header-top">
-                                    <h1>My Profile</h1>
-                                </div>
+    // On success, ensure button state returns and give feedback
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = 'Save changes';
+    }
+    showToast('Profile saved successfully', 'var(--green)');
+  } catch (e) {
+    console.error('saveProfileHandler error:', e);
+    if (btn) { btn.disabled = false; btn.textContent = 'Save changes'; }
+    showToast('Error saving profile', 'var(--red)');
+  }
+}
 
-                                <div class="profile-card">
-                                    <div class="profile-actions">
-                                            <button id="editProfileBtn" class="btn btn-primary" type="button" onclick="toggleEditProfile()">
-                                            Edit Profile
-                                        </button>
-                                    </div>
+function init() {
+  hydrateProfile();
+  renderSkills();
+  renderActivity();
+  renderExpDisplay();
+  renderExpEdit();
+  renderEvents();
+  renderEarnings();
+  updateTopbarAuthButtons();
+}
 
-                                    <div id="profileViewMode">
-                                        <div class="profile-header-info">
-                                            <div class="profile-avatar-large" id="profileAvatarLarge">
-                                            </div>
-                                            <div class="profile-name-info">
-                                                <h2 id="profileName">Volunteer</h2>
-                                                <p id="profileEmail">volunteer@example.com</p>
-                                            </div>
-                                        </div>
+function hydrateProfile() {
+  const fullName = [PROFILE.fn, PROFILE.ln].filter(Boolean).join(' ').trim();
+  const initials = (fullName || 'V')
+    .split(' ')
+    .map(part => part[0])
+    .join('')
+    .slice(0, 2)
+    .toUpperCase() || 'V';
+  const photoUrl = getProfilePhotoUrl(VOL);
+  const memberSince = formatMemberSince(VOL);
 
-                                        <div class="profile-details">
-                                            <div class="profile-section-box">
-                                                <h3>Contact Information</h3>
-                                                <div class="detail-item">
-                                                    <label>Phone</label>
-                                                    <p id="profilePhone">N/A</p>
-                                                </div>
-                                                <div class="detail-item">
-                                                    <label>Email</label>
-                                                    <p id="profileEmailDetail">N/A</p>
-                                                </div>
-                                            </div>
+  document.getElementById('sb-initials').textContent = initials;
+  document.getElementById('sb-name').textContent = fullName || 'Volunteer';
+  document.getElementById('sb-role').textContent = fullName || 'Volunteer';
+  setAvatarContent('sb-initials', photoUrl, initials, fullName || 'Volunteer');
+  setAvatarContent('pav-display', photoUrl, initials, fullName || 'Volunteer');
+  setEditPhotoPreview(photoUrl, initials, fullName || 'Volunteer');
+  document.getElementById('p-name').textContent = fullName || '';
+  document.getElementById('p-handle').textContent = PROFILE.email || 'N/A';
+  document.getElementById('p-rating').textContent = PROFILE.rating ? PROFILE.rating.toFixed(1) : '0.0';
+  document.getElementById('rating-fill').style.width = `${Math.min(Math.max(PROFILE.rating * 20, 0), 100)}%`;
+  document.querySelector('.rating-reviews').textContent = `(${PROFILE.ratingCount} reviews)`;
+  document.getElementById('pm-age').textContent = PROFILE.age || 'N/A';
+  document.getElementById('pm-loc').textContent = PROFILE.loc || 'N/A';
+  document.getElementById('pm-since').textContent = memberSince;
+  document.getElementById('p-about').textContent = PROFILE.about || 'No description provided.';
+  document.getElementById('f-fn').value = PROFILE.fn || '';
+  document.getElementById('f-ln').value = PROFILE.ln || '';
+  document.getElementById('f-age').value = PROFILE.age || '';
+  document.getElementById('f-loc').value = PROFILE.loc || '';
+  document.getElementById('f-email').value = PROFILE.email || '';
+  document.getElementById('f-phone').value = PROFILE.phone || '';
+  document.getElementById('f-about').value = PROFILE.about || '';
+  document.getElementById('f-skills').value = PROFILE.skills.join(', ');
+  const editPhotoInput = document.getElementById('editProfilePicEdit');
+  if (editPhotoInput) {
+    editPhotoInput.addEventListener('change', () => {
+      const file = editPhotoInput.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const photoUrl = String(reader.result || '');
+        // Keep the large data URL only in-memory to avoid localStorage quota issues.
+        // Do NOT persist photoDataUrl to localStorage here.
+        VOL._pendingPhotoDataUrl = photoUrl;
+        setEditPhotoPreview(photoUrl, initials, fullName || 'Volunteer');
+        setAvatarContent('pav-display', photoUrl, initials, fullName || 'Volunteer');
+        setAvatarContent('sb-initials', photoUrl, initials, fullName || 'Volunteer');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+}
+function renderSkills() { document.getElementById('p-skills').innerHTML = PROFILE.skills.length ? PROFILE.skills.map(s => `<span class="skill-pill">${s}</span>`).join('') : '<span class="empty">No skills added yet.</span>'; }
+function renderActivity() { document.getElementById('activity-list').innerHTML = '<div class="empty">No recent activity yet.</div>'; }
+function renderExpDisplay() { const el = document.getElementById('exp-display'); el.innerHTML = EXPS.length ? EXPS.map(e => `<div class="exp-display-row"><div class="exp-role">${e.role}</div><div class="exp-org">${e.org}</div><div class="exp-date">${e.date}</div><div class="exp-desc">${e.desc}</div></div>`).join('') : '<div class="empty">No experience added yet.</div>'; }
+function renderExpEdit() { document.getElementById('exp-edit-list').innerHTML = EXPS.length ? EXPS.map(e => `<div class="exp-edit-entry" id="ee-${e.id}"><div><div class="form-2col" style="margin-bottom:10px"><div class="form-group" style="margin-bottom:0"><label class="form-label">Role / Title</label><input class="form-input" value="${e.role}" oninput="upExp(${e.id},'role',this.value)"></div><div class="form-group" style="margin-bottom:0"><label class="form-label">Organisation</label><input class="form-input" value="${e.org}" oninput="upExp(${e.id},'org',this.value)"></div></div><div class="form-2col"><div class="form-group" style="margin-bottom:0"><label class="form-label">Date</label><input class="form-input" value="${e.date}" oninput="upExp(${e.id},'date',this.value)"></div><div class="form-group" style="margin-bottom:0"><label class="form-label">Description</label><input class="form-input" value="${e.desc}" oninput="upExp(${e.id},'desc',this.value)"></div></div></div><button class="exp-remove-btn" onclick="rmExp(${e.id})">Remove</button></div>`).join('') : '<div class="empty">No experience added yet.</div>'; }
+function upExp(id, f, v) { const e = EXPS.find(x => x.id === id); if (e) e[f] = v; }
+function rmExp(id) { EXPS = EXPS.filter(x => x.id !== id); renderExpEdit(); renderExpDisplay(); showToast('Experience entry removed', 'var(--muted3)'); }
+function addExp() { expSeq++; EXPS.push({ id:expSeq, role:'', org:'', date:'', desc:'' }); renderExpEdit(); document.getElementById('exp-edit-list').lastElementChild?.scrollIntoView({ behavior:'smooth' }); }
+function renderEvents() { document.getElementById('ev-list').innerHTML = '<div class="empty">No events yet.</div>'; }
+function renderEarnings() { document.getElementById('earn-summary').innerHTML = `<div class="earn-block amber"><div class="earn-val amber">₹0</div><div class="earn-label">Total Earned</div><div class="earn-sub">Lifetime earnings</div></div><div class="earn-block green"><div class="earn-val green">0</div><div class="earn-label">Hours Logged</div><div class="earn-sub">Across 0 completed events</div></div><div class="earn-block blue"><div class="earn-val blue">—</div><div class="earn-label">Avg. Per Event</div><div class="earn-sub">Based on completed</div></div>`; document.getElementById('bars-row').innerHTML = MONTHLY[activePeriod].map(d => `<div class="bar-col"><div class="bar-track" style="height:80px"><div class="bar-fill" style="height:0%" data-val="₹0"></div></div><div class="bar-label">${d.m}</div></div>`).join(''); document.getElementById('chart-total').textContent = '₹0'; document.getElementById('earn-breakdown').innerHTML = '<div class="empty">No earnings yet.</div>'; document.getElementById('s-earn').textContent = '₹0'; document.getElementById('s-hours').textContent = '0'; document.getElementById('s-applied').textContent = '0'; document.querySelectorAll('.sum-sub').forEach((el, index) => { if (index === 0) el.textContent = '+0 this month'; if (index === 1) el.textContent = 'Lifetime earnings'; if (index === 2) el.textContent = '0 reviews'; if (index === 3) el.textContent = 'Across 0 events'; }); }
+function renderBars(yr) { const data = MONTHLY[yr]; const max = Math.max(...data.map(d => d.v), 1); const tot = data.reduce((s,d) => s + d.v, 0); document.getElementById('chart-total').textContent = '₹' + tot.toLocaleString(); document.getElementById('bars-row').innerHTML = data.map(d => { const pct = Math.round((d.v / max) * 100); return `<div class="bar-col"><div class="bar-track" style="height:80px"><div class="bar-fill ${d.v > 0 ? 'has-val' : ''}" style="height:${Math.max(pct, d.v > 0 ? 3 : 0)}%" data-val="₹${d.v.toLocaleString()}"></div></div><div class="bar-label">${d.m}</div></div>`; }).join(''); }
+function setPeriod(yr, btn) { activePeriod = yr; document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderBars(yr); }
+function saveProfile() { VOL.fn = document.getElementById('f-fn').value.trim(); VOL.ln = document.getElementById('f-ln').value.trim(); VOL.age = parseInt(document.getElementById('f-age').value) || VOL.age; VOL.loc = document.getElementById('f-loc').value.trim(); VOL.email = document.getElementById('f-email').value.trim(); VOL.phone = document.getElementById('f-phone').value.trim(); VOL.about = document.getElementById('f-about').value.trim(); VOL.skills = document.getElementById('f-skills').value.split(',').map(s => s.trim()).filter(Boolean); VOL.experience = EXPS.map(entry => ({ role: entry.role, org: entry.org, date: entry.date, desc: entry.desc })); const full = [VOL.fn, VOL.ln].filter(Boolean).join(' ').trim(); VOL.fullName = full; VOL.full_name = full; localStorage.setItem('volunteerProfile', JSON.stringify(VOL)); Object.assign(PROFILE, { fn: VOL.fn, ln: VOL.ln, age: VOL.age, loc: VOL.loc, email: VOL.email, phone: VOL.phone, about: VOL.about, skills: VOL.skills, rating: PROFILE.rating, ratingCount: PROFILE.ratingCount, photoUrl: getProfilePhotoUrl(VOL) }); const init = (VOL.fn[0] || '') + (VOL.ln[0] || ''); document.getElementById('p-name').textContent = full || ''; document.getElementById('p-handle').textContent = VOL.email || 'N/A'; document.getElementById('p-about').textContent = VOL.about || 'No description provided.'; document.getElementById('pm-age').textContent = VOL.age || 'N/A'; document.getElementById('pm-loc').textContent = VOL.loc || 'N/A'; document.getElementById('pm-since').textContent = formatMemberSince(VOL); document.getElementById('sb-name').textContent = full || ''; document.getElementById('sb-role').textContent = full || ''; setAvatarContent('pav-display', getProfilePhotoUrl(VOL), init.toUpperCase() || 'V', full || 'Volunteer'); setAvatarContent('sb-initials', getProfilePhotoUrl(VOL), init.toUpperCase() || 'V', full || 'Volunteer'); setEditPhotoPreview(getProfilePhotoUrl(VOL), init.toUpperCase() || 'V', full || 'Volunteer'); renderSkills(); renderExpDisplay(); renderExpEdit(); showToast('Profile saved successfully', 'var(--green)'); switchTab('overview', null); }
+const PANEL_NAMES = ['overview','events','earnings','edit'];
+const CRUMB_MAP = { overview:'Overview', events:'My Events', earnings:'Earnings', edit:'Edit Profile' };
+function switchTab(name, triggerEl) { PANEL_NAMES.forEach(p => { document.getElementById('panel-' + p)?.classList.remove('active'); }); document.querySelectorAll('.tab').forEach(t => t.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); document.getElementById('panel-' + name)?.classList.add('active'); const tabBtn = document.querySelector(`.tab[data-tab="${name}"]`); if (tabBtn) tabBtn.classList.add('active'); const navBtn = document.querySelector(`.nav-item[data-tab="${name}"]`); if (navBtn) navBtn.classList.add('active'); document.getElementById('breadcrumb-label').textContent = CRUMB_MAP[name] || name; closeSidebar(); if (name === 'events') renderEvents(); }
+function openSidebar() { document.getElementById('sidebar').classList.add('open'); document.getElementById('sidebarOverlay').classList.add('show'); }
+function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+function logout() { localStorage.removeItem('volunteerProfile'); localStorage.removeItem('stafflyRole'); window.location.href = 'index.html'; }
+let toastTimer;
+function showToast(msg, color = 'var(--green)') { const t = document.getElementById('toast'); document.getElementById('toast-msg').textContent = msg; document.getElementById('toast-dot').style.background = color; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2800); }
+const cur = document.getElementById('cursor');
+document.addEventListener('mousemove', e => { cur.style.left = e.clientX + 'px'; cur.style.top = e.clientY + 'px'; });
+document.querySelectorAll('button, a, .stat-block, .event-row, .activity-row, .breakdown-row, .exp-display-row, .skill-pill, .earn-block, .sum-item').forEach(el => { el.addEventListener('mouseenter', () => cur.classList.add('big')); el.addEventListener('mouseleave', () => cur.classList.remove('big')); });
+switchShellTab('events', document.querySelector('.app-shell-tab[data-shell-tab="events"]'));
+init();
 
-                                            <div class="profile-section-box">
-                                                <h3>Personal Information</h3>
-                                                <div class="detail-item">
-                                                    <label>Age</label>
-                                                    <p id="profileAge">N/A</p>
-                                                </div>
-                                                <div class="detail-item">
-                                                    <label>Experience</label>
-                                                    <p id="profileExperience">N/A</p>
-                                                </div>
-                                            </div>
+// Override client-side saveProfile to persist changes to backend storage and DB
+window.saveProfile = async function() {
+  try {
+    // Reuse the form collection logic from the page
+    VOL.fn = document.getElementById('f-fn').value.trim();
+    VOL.ln = document.getElementById('f-ln').value.trim();
+    VOL.age = parseInt(document.getElementById('f-age').value) || VOL.age;
+    VOL.loc = document.getElementById('f-loc').value.trim();
+    VOL.email = document.getElementById('f-email').value.trim();
+    VOL.phone = document.getElementById('f-phone').value.trim();
+    VOL.about = document.getElementById('f-about').value.trim();
+    VOL.skills = document.getElementById('f-skills').value.split(',').map(s => s.trim()).filter(Boolean);
+    VOL.experience = EXPS.map(entry => ({ role: entry.role, org: entry.org, date: entry.date, desc: entry.desc }));
+    const full = [VOL.fn, VOL.ln].filter(Boolean).join(' ').trim();
+    VOL.fullName = full; VOL.full_name = full;
 
-                                            <div class="profile-section-box full-width">
-                                                <h3>About You</h3>
-                                                <p id="profileDescription">No description provided.</p>
-                                            </div>
-                                        </div>
-                                    </div>
+    const form = new FormData();
+    const volunteerId = VOL.id || VOL.user_id || VOL.volunteerId || VOL.volunteer_id || '';
+    if (volunteerId) form.append('volunteerId', volunteerId);
+    form.append('fullName', full);
+    form.append('email', VOL.email || '');
+    form.append('phone', VOL.phone || '');
+    form.append('age', VOL.age || '');
+    form.append('experience', JSON.stringify(VOL.experience || []));
+    form.append('description', VOL.about || '');
 
-                                    <div id="profileEditMode" style="display: none;">
-                                        <form id="editProfileForm">
-                                            <div class="profile-edit-avatar">
-                                                <div class="profile-avatar-large" id="editAvatarDisplay">
-                                                    
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="editProfilePicEdit">Profile Picture</label>
-                                                    <input type="file" id="editProfilePicEdit" accept="image/*" />
-                                                </div>
-                                            </div>
+    const editPhotoInput = document.getElementById('editProfilePicEdit');
+    if (editPhotoInput && editPhotoInput.files && editPhotoInput.files[0]) {
+      form.append('photoUpload', editPhotoInput.files[0]);
+    } else if (VOL._pendingPhotoDataUrl && VOL._pendingPhotoDataUrl.startsWith('data:')) {
+      try {
+        const res = await fetch(VOL._pendingPhotoDataUrl);
+        const blob = await res.blob();
+        form.append('photoUpload', blob, 'photo.png');
+      } catch (e) {
+        console.warn('Failed to convert pending dataURL to blob:', e);
+      }
+    } else if (VOL.photoDataUrl && VOL.photoDataUrl.startsWith('data:')) {
+      // legacy field - try converting if present
+      try {
+        const res = await fetch(VOL.photoDataUrl);
+        const blob = await res.blob();
+        form.append('photoUpload', blob, 'photo.png');
+      } catch (e) {
+        console.warn('Failed to convert dataURL to blob:', e);
+      }
+    } else if (VOL.photo_url) {
+      form.append('photoUrl', VOL.photo_url);
+    }
 
-                                            <div class="profile-edit-grid">
-                                                <div class="form-group">
-                                                    <label for="editFullName">Full Name</label>
-                                                    <input type="text" id="editFullName" required />
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="editEmailEdit">Email</label>
-                                                    <input type="email" id="editEmailEdit" required />
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="editPhone">Phone</label>
-                                                    <input type="tel" id="editPhone" />
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="editAge">Age</label>
-                                                    <input type="number" id="editAge" />
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="editExperience">Experience</label>
-                                                    <textarea id="editExperience" rows="3"></textarea>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label for="editDescription">About You</label>
-                                                    <textarea id="editDescription" rows="3"></textarea>
-                                                </div>
-                                            </div>
+    const resp = await fetch(`${API_BASE_URL}/volunteers/update`, { method: 'PUT', body: form });
+    let result = await resp.json();
+    if (!resp.ok) {
+      // If volunteer row missing, attempt to recreate via complete-profile
+      if (resp.status === 404 || (result && result.error && /no volunteer found/i.test(result.error))) {
+        try {
+          const restoreResp = await fetch(`${API_BASE_URL}/volunteers/complete-profile`, { method: 'POST', body: form });
+          const restoreResult = await restoreResp.json();
+          if (!restoreResp.ok) throw new Error(restoreResult.error || 'Profile restore failed');
+          // Use restored result as serverData
+          result = { data: restoreResult.user || restoreResult.data || restoreResult };
+        } catch (e) {
+          throw new Error(e.message || 'Profile restore failed');
+        }
+      } else {
+        throw new Error(result.error || 'Server update failed');
+      }
+    }
 
-                                            <div class="profile-edit-actions">
-                                                <button type="submit" class="btn btn-primary">
-                                                    Save Changes
-                                                </button>
-                                                <button type="button" class="btn btn-secondary" onclick="cancelEditProfile()">
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+    const serverData = result.data || {};
+    const storedProfile = Object.assign({}, VOL, {
+      id: serverData.id || VOL.id,
+      full_name: serverData.full_name || VOL.full_name || VOL.fullName,
+      fullName: serverData.full_name || VOL.fullName,
+      age: serverData.age || VOL.age,
+      email: serverData.email || VOL.email,
+      contact: serverData.contact || VOL.phone,
+      phone: serverData.contact || VOL.phone,
+      'past experience': serverData['past experience'] || VOL.experience,
+      experience: serverData['past experience'] || VOL.experience,
+      description: serverData.description || VOL.about,
+      photo_url: serverData.photo_url || VOL.photo_url || getProfilePhotoUrl(VOL)
+    });
 
-                            <!-- Applications Section -->
-                            <div id="applications-section" class="dashboard-section" style="display: none;">
-                                <div class="dashboard-header-top">
-                                    <h1>My Applications</h1>
-                                </div>
-                                <div class="applications-list">
-                                    <p class="text-muted">No applications yet. Start by browsing and applying for events!</p>
-                                </div>
-                            </div>
+    if (storedProfile.photoDataUrl) delete storedProfile.photoDataUrl;
+    localStorage.setItem('volunteerProfile', JSON.stringify(storedProfile));
 
-                            <!-- Hours Section -->
-                            <div id="hours-section" class="dashboard-section" style="display: none;">
-                                <div class="dashboard-header-top">
-                                    <h1>Hours Logged</h1>
-                                </div>
-                                <div class="hours-list">
-                                    <p class="text-muted">No hours logged yet. Complete your first event to log hours!</p>
-                                </div>
-                            </div>
+    Object.assign(VOL, storedProfile);
+    Object.assign(PROFILE, {
+      fn: VOL.fn || PROFILE.fn,
+      ln: VOL.ln || PROFILE.ln,
+      age: VOL.age || PROFILE.age,
+      loc: VOL.loc || PROFILE.loc,
+      email: VOL.email || PROFILE.email,
+      phone: VOL.phone || PROFILE.phone,
+      about: VOL.about || PROFILE.about,
+      skills: Array.isArray(VOL.skills) ? VOL.skills : PROFILE.skills,
+      rating: PROFILE.rating,
+      ratingCount: PROFILE.ratingCount,
+      photoUrl: serverData.photo_url || VOL.photo_url || getProfilePhotoUrl(VOL)
+    });
 
-                            <!-- Earnings Section -->
-                            <div id="earnings-section" class="dashboard-section" style="display: none;">
-                                <div class="dashboard-header-top">
-                                    <h1>Earnings</h1>
-                                </div>
-                                <div class="earnings-summary">
-                                    <div class="earnings-card">
-                                        <h3>Total Earnings</h3>
-                                        <p class="earnings-amount">₹0.00</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Chat Tab -->
-                <div id="chat-tab" class="tab-content">
-                    <div class="chat-container">
-                        <div class="container px-4 px-lg-5">
-                            <div class="coming-soon">
-                                <div class="coming-soon-icon">
-                                </div>
-                                <h2>Chat Coming Soon</h2>
-                                <p>We're building a real-time chat feature to connect volunteers with event organizers.</p>
-                                <p class="text-muted mt-4">This feature will be available in the next update.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Footer-->
-        <footer class="footer bg-black small text-center text-white-50">
-            <div class="container px-4 px-lg-5">
-                <div class="social d-flex justify-content-center mb-2">
-                    <a class="mx-2" href="#!" aria-label="Twitter" title="Twitter">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M22.46 6c-.77.35-1.6.58-2.46.69a4.3 4.3 0 0 0 1.88-2.37 8.6 8.6 0 0 1-2.72 1.04 4.28 4.28 0 0 0-7.29 3.9A12.15 12.15 0 0 1 3.15 4.6a4.28 4.28 0 0 0 1.33 5.72 4.23 4.23 0 0 1-1.94-.54v.05a4.28 4.28 0 0 0 3.43 4.19 4.3 4.3 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.97A8.6 8.6 0 0 1 2 19.54a12.13 12.13 0 0 0 6.56 1.92c7.88 0 12.2-6.53 12.2-12.2v-.56A8.7 8.7 0 0 0 22.46 6z"/>
-                        </svg>
-                    </a>
-                    <a class="mx-2" href="#!" aria-label="Facebook" title="Facebook">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M22 12a10 10 0 1 0-11.5 9.9v-7h-2.1v-2.9h2.1V9.5c0-2.1 1.3-3.2 3.1-3.2.9 0 1.8.1 1.8.1v2h-1c-1 0-1.3.6-1.3 1.2v1.5h2.3l-.4 2.9h-1.9v7A10 10 0 0 0 22 12z"/>
-                        </svg>
-                    </a>
-                    <a class="mx-2" href="https://www.instagram.com/stafflyyyyyy/?__pwa=1#" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                            <path d="M7 2C4.24 2 2 4.24 2 7v10c0 2.76 2.24 5 5 5h10c2.76 0 5-2.24 5-5V7c0-2.76-2.24-5-5-5H7zm5 5.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 0 1 12 7.5zm5.2-.9a1.1 1.1 0 1 1-1.1-1.1 1.1 1.1 0 0 1 1.1 1.1zM12 9a3 3 0 1 0 3 3 3 3 0 0 0-3-3z"/>
-                        </svg>
-                    </a>
-                </div>
-                Copyright &copy; Staffly Event Hub 2026
-            </div>
-        </footer>
-
-        <!-- Volunteer Signup Modal (from original) -->
-        <div id="volunteerModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeVolunteerForm()">&times;</span>
-                <h2>Become a Volunteer</h2>
-                <form id="volunteerForm">
-                    <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" name="fullName" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" minlength="6" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" />
-                    </div>
-                    <div class="form-group">
-                        <label for="age">Age</label>
-                        <input type="number" id="age" name="age" />
-                    </div>
-                    <div class="form-group">
-                        <label for="experience">Past Experience</label>
-                        <textarea id="experience" name="experience" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">About You</label>
-                        <textarea id="description" name="description" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="profilePic">Profile Picture</label>
-                        <input type="file" id="profilePic" name="profilePic" accept="image/*" />
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit Application</button>
-                </form>
-                <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(100, 161, 157, 0.2);">
-                    <p style="color: rgba(255, 255, 255, 0.7); margin-bottom: 10px;">Already registered?</p>
-                        <button id="goToLoginBtn" class="btn" style="background: transparent; border: 2px solid #64a19d; color: #64a19d; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: 600;">
-                        Login Here
-                    </button>
-                </div>
-                <div id="successMessage" class="message success d-none">
-                    Signup successful! You can now browse events.
-                </div>
-                <div id="errorMessage" class="message error d-none">
-                    An error occurred. Please try again.
-                </div>
-            </div>
-        </div>
-
-        <!-- Login Modal (from original) -->
-        <div id="loginModal" class="modal">
-            <div class="modal-content">
-                <span class="close" onclick="closeLoginForm()">&times;</span>
-                <h2>Login</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="loginEmail">Email Address</label>
-                        <input type="email" id="loginEmail" name="loginEmail" placeholder="Enter your registered email" required />
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" name="loginPassword" minlength="6" required />
-                    </div>
-                    <button type="submit" class="btn btn-primary">Login</button>
-                </form>
-                <div id="loginSuccessMessage" class="message success d-none">
-                    Login successful!
-                </div>
-                <div id="loginErrorMessage" class="message error d-none">
-                    Login failed. Please try again.
-                </div>
-            </div>
-        </div>
-
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="js/scripts.js"></script>
-        <script src="js/app.js"></script>
-    </body>
+    const init = (VOL.fn && VOL.fn[0] ? VOL.fn[0] : '') + (VOL.ln && VOL.ln[0] ? VOL.ln[0] : '');
+    document.getElementById('p-name').textContent = full || '';
+    document.getElementById('p-handle').textContent = VOL.email || 'N/A';
+    document.getElementById('p-about').textContent = VOL.about || 'No description provided.';
+    document.getElementById('pm-age').textContent = VOL.age || 'N/A';
+    document.getElementById('pm-loc').textContent = VOL.loc || 'N/A';
+    document.getElementById('pm-since').textContent = formatMemberSince(VOL);
+    document.getElementById('sb-name').textContent = full || '';
+    document.getElementById('sb-role').textContent = full || '';
+    setAvatarContent('pav-display', getProfilePhotoUrl(VOL), init.toUpperCase() || 'V', full || 'Volunteer');
+    setAvatarContent('sb-initials', getProfilePhotoUrl(VOL), init.toUpperCase() || 'V', full || 'Volunteer');
+    setEditPhotoPreview(getProfilePhotoUrl(VOL), init.toUpperCase() || 'V', full || 'Volunteer');
+    renderSkills(); renderExpDisplay(); renderExpEdit();
+    showToast('Profile saved successfully', 'var(--green)');
+    switchTab('overview', null);
+  } catch (error) {
+    console.error('Failed to save profile to server:', error);
+    try { const minimal = { fn: VOL.fn, ln: VOL.ln, fullName: VOL.fullName, email: VOL.email }; localStorage.setItem('volunteerProfile', JSON.stringify(minimal)); } catch (e) { console.warn('Could not store minimal profile locally:', e); }
+    showToast('Error saving profile. Please try again.', 'var(--red)');
+  }
+};
+</script>
+</body>
 </html>

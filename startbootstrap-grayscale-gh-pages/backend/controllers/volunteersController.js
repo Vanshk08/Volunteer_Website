@@ -162,6 +162,134 @@ function createVolunteersController({ supabase }) {
             }
         },
 
+        async checkEmail(req, res) {
+            try {
+                const { email } = req.body;
+                if (!email) {
+                    return res.status(400).json({ success: false, error: 'Email is required' });
+                }
+
+                const cleanedEmail = String(email || '').trim();
+                console.log('Checking email existence for:', cleanedEmail);
+
+                // Check Volunteers table (profile)
+                let profileExists = false;
+                let profileRow = null;
+                try {
+                    const { data: vdata, error: verror } = await supabase
+                        .from('Volunteers')
+                        .select('*')
+                        .ilike('email', cleanedEmail)
+                        .limit(1);
+                    if (!verror && Array.isArray(vdata) && vdata.length > 0) {
+                        profileExists = true;
+                        profileRow = vdata[0];
+                    }
+                } catch (e) {
+                    console.error('Volunteers table check failed:', e);
+                }
+
+                // Check Auth user existence if admin API available
+                let authExists = false;
+                try {
+                    if (supabase.auth && supabase.auth.admin && typeof supabase.auth.admin.getUserByEmail === 'function') {
+                        const { data: authUser, error: authErr } = await supabase.auth.admin.getUserByEmail(cleanedEmail);
+                        if (!authErr && authUser) authExists = true;
+                    }
+                } catch (e) {
+                    console.error('Auth user check failed (non-fatal):', e && e.message ? e.message : e);
+                }
+
+                return res.json({ success: true, profileExists, authExists, user: profileRow });
+            } catch (error) {
+                console.error('Check email error:', error);
+                return res.status(500).json({ success: false, error: error.message });
+            }
+        },
+
+        async completeProfile(req, res) {
+            try {
+                const { fullName, age, email, phone, experience, description } = req.body;
+
+                if (!email || !fullName) {
+                    return res.status(400).json({ success: false, error: 'Email and fullName are required' });
+                }
+
+                const cleanedEmail = String(email || '').trim();
+                let authUserId = null;
+                // Try to find existing auth user by email
+                try {
+                    if (supabase.auth && supabase.auth.admin && typeof supabase.auth.admin.getUserByEmail === 'function') {
+                        const { data: authUser, error: authErr } = await supabase.auth.admin.getUserByEmail(cleanedEmail);
+                        if (!authErr && authUser) {
+                            authUserId = authUser.id || (authUser.user && authUser.user.id) || (authUser.data && authUser.data.id) || null;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Auth lookup by email failed:', e && e.message ? e.message : e);
+                }
+
+                // If no auth user, create one with provided password or a random one
+                if (!authUserId) {
+                    const password = req.body.password || Math.random().toString(36).slice(-8);
+                    const { data: signData, error: signErr } = await supabase.auth.signUp({ email: cleanedEmail, password });
+                    if (signErr) {
+                        console.error('Auth signup failed while completing profile:', signErr);
+                        return res.status(400).json({ success: false, error: signErr.message });
+                    }
+                    authUserId = signData?.user?.id || null;
+                }
+
+                // Handle photo upload if provided
+                let photoUrl = null;
+                if (req.file) {
+                    try {
+                        const fileName = `volunteers/${Date.now()}_${req.file.originalname}`;
+                        const { data: uploadData, error: uploadError } = await supabase.storage
+                            .from('volunteer_photos')
+                            .upload(fileName, req.file.buffer, { contentType: req.file.mimetype });
+                        if (!uploadError) {
+                            const { data: publicData } = supabase.storage.from('volunteer_photos').getPublicUrl(fileName);
+                            photoUrl = publicData?.publicUrl || null;
+                        }
+                    } catch (e) {
+                        console.error('Photo upload failed during completeProfile:', e);
+                    }
+                }
+
+                // Insert profile row
+                const formData = {
+                    user_id: authUserId,
+                    full_name: fullName,
+                    age: parseInt(age) || null,
+                    email: cleanedEmail,
+                    contact: phone || null,
+                    'past experience': experience || null,
+                    description: description || null,
+                    photo_url: photoUrl,
+                    submitted_at: new Date().toISOString(),
+                    role: 'volunteer',
+                    approval_status: 'approved'
+                };
+
+                const { data: inserted, error: insertErr } = await supabase
+                    .from('Volunteers')
+                    .insert([formData])
+                    .select();
+
+                if (insertErr) {
+                    console.error('Error inserting profile row:', insertErr);
+                    return res.status(500).json({ success: false, error: insertErr.message });
+                }
+
+                return res.json({ success: true, message: 'Profile completed', user: inserted[0] });
+
+            } catch (error) {
+                console.error('completeProfile error:', error);
+                return res.status(500).json({ success: false, error: error.message });
+            }
+        },
+
         async update(req, res) {
             try {
                 // Log what we received
@@ -174,14 +302,8 @@ function createVolunteersController({ supabase }) {
                 console.log('Extracted email:', email);
                 console.log('Extracted fullName:', fullName);
 
-                // Use volunteer ID to find the record
-                if (!volunteerId) {
-                    console.error('No volunteer ID provided. Available fields:', Object.keys(req.body));
-                    return res.status(400).json({ error: 'Volunteer ID is required' });
-                }
-
-                // Convert volunteerId to integer if needed
-                const idToFind = parseInt(volunteerId) || volunteerId;
+                // Convert volunteerId to integer if provided
+                const idToFind = volunteerId ? (parseInt(volunteerId) || volunteerId) : null;
                 console.log('Looking up volunteer with ID:', idToFind, 'Type:', typeof idToFind);
 
                 // Handle photo upload if provided
@@ -233,82 +355,60 @@ function createVolunteersController({ supabase }) {
                     updateData[key] === undefined && delete updateData[key]
                 );
 
-                // Check if the volunteer exists first
-                console.log('Checking volunteer existence with ID:', idToFind);
-                const { data: existingData, error: selectError } = await supabase
-                    .from('Volunteers')
-                    .select('*')
-                    .eq('id', idToFind)
-                    .limit(1);
+                // If an ID is provided, try update by ID first
+                if (idToFind) {
+                    console.log('Attempting update with ID:', idToFind);
+                    let { data, error } = await supabase
+                        .from('Volunteers')
+                        .update(updateData)
+                        .eq('id', idToFind)
+                        .select();
 
-                console.log('Existence check error:', selectError);
-                console.log('Existence check data:', existingData);
+                    console.log('Primary update response - Error:', error);
+                    console.log('Primary update response - Data:', data);
 
-                if (selectError) {
-                    console.error('Database error on select:', selectError);
-                    throw new Error(`Database error: ${selectError.message}`);
-                }
-
-                if (!existingData || existingData.length === 0) {
-                    console.warn('No existing volunteer row found with ID:', idToFind);
-                }
-
-                // Update in Supabase - use ID to find the record
-                console.log('Attempting update with ID:', idToFind);
-                let { data, error } = await supabase
-                    .from('Volunteers')
-                    .update(updateData)
-                    .eq('id', idToFind)
-                    .select();
-
-                console.log('Primary update response - Error:', error);
-                console.log('Primary update response - Data:', data);
-
-                if (error) {
-                    console.error('Database error:', error);
-                    throw new Error(`Database error: ${error.message}`);
-                }
-
-                if (!data || data.length === 0) {
-                    console.warn('No volunteer found by ID; attempting fallback lookup by email:', email);
-                    if (email) {
-                        const fallbackResult = await supabase
-                            .from('Volunteers')
-                            .update(updateData)
-                            .eq('email', email)
-                            .select();
-
-                        console.log('Fallback update response - Error:', fallbackResult.error);
-                        console.log('Fallback update response - Data:', fallbackResult.data);
-
-                        if (fallbackResult.error) {
-                            console.error('Fallback database error:', fallbackResult.error);
-                            throw new Error(`Database error: ${fallbackResult.error.message}`);
-                        }
-
-                        if (fallbackResult.data && fallbackResult.data.length > 0) {
-                            console.log('Fallback update succeeded:', fallbackResult.data[0]);
-                            return res.json({
-                                success: true,
-                                message: 'Profile updated successfully',
-                                data: fallbackResult.data[0]
-                            });
-                        }
+                    if (error) {
+                        console.error('Database error:', error);
+                        throw new Error(`Database error: ${error.message}`);
                     }
 
-                    console.error('No volunteer found with ID:', idToFind, 'or email:', email);
-                    return res.status(404).json({
-                        success: false,
-                        error: `No volunteer found with ID: ${idToFind} or email: ${email}`
-                    });
+                    if (data && data.length > 0) {
+                        console.log('Successfully updated volunteer by ID:', data[0]);
+                        return res.json({ success: true, message: 'Profile updated successfully', data: data[0] });
+                    }
+
+                    console.warn('No volunteer found by ID; will attempt fallback by email if provided');
                 }
 
-                console.log('Successfully updated volunteer:', data[0]);
-                res.json({
-                    success: true,
-                    message: 'Profile updated successfully',
-                    data: data[0]
-                });
+                // If email provided, attempt update by email
+                if (email) {
+                    console.log('Attempting fallback update by email:', email);
+                    const fallbackResult = await supabase
+                        .from('Volunteers')
+                        .update(updateData)
+                        .ilike('email', String(email).trim())
+                        .select();
+
+                    console.log('Fallback update response - Error:', fallbackResult.error);
+                    console.log('Fallback update response - Data:', fallbackResult.data);
+
+                    if (fallbackResult.error) {
+                        console.error('Fallback database error:', fallbackResult.error);
+                        throw new Error(`Database error: ${fallbackResult.error.message}`);
+                    }
+
+                    if (fallbackResult.data && fallbackResult.data.length > 0) {
+                        console.log('Fallback update succeeded:', fallbackResult.data[0]);
+                        return res.json({ success: true, message: 'Profile updated successfully', data: fallbackResult.data[0] });
+                    }
+
+                    console.error('No volunteer found with email:', email);
+                    return res.status(404).json({ success: false, error: `No volunteer found with email: ${email}` });
+                }
+
+                // If neither ID nor email matched anything, return an error
+                console.error('No volunteer found: no matching ID or email provided');
+                return res.status(404).json({ success: false, error: 'No volunteer found with provided ID or email' });
 
             } catch (error) {
                 console.error('Error:', error);
