@@ -19,6 +19,12 @@ const API_BASE_URL = normalizeApiBaseUrl(
     'http://localhost:3001/api'
 );
 
+const SUPABASE_URL = String(document.documentElement.dataset.supabaseUrl || '').trim();
+const SUPABASE_ANON_KEY = String(document.documentElement.dataset.supabaseAnonKey || '').trim();
+const supabaseClient = (window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY)
+    ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+    : null;
+
 function getStoredRole() {
     return localStorage.getItem('stafflyRole') || 'volunteer';
 }
@@ -325,9 +331,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Show success message
                 if (successMessage) successMessage.classList.remove('d-none');
                 
-                // Store profile data in localStorage
-                const storedProfile = normalizeVolunteerProfile(result.user || result.data || {}, document.getElementById('email').value);
-                localStorage.setItem('volunteerProfile', JSON.stringify(storedProfile));
+                    const profile = result.user || result.data || {};
+                localStorage.setItem('volunteerProfile', JSON.stringify(result.data));
                 
                 // Update button to Profile
                 updateSignupButton();
@@ -365,7 +370,8 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             
             const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+            const selectedRole = (document.getElementById('loginRole')?.value || 'volunteer').toLowerCase();
+            const role = resolveLoginRole(email, selectedRole);
             const loginSuccessMessage = document.getElementById('loginSuccessMessage');
             const loginErrorMessage = document.getElementById('loginErrorMessage');
             const loginErrorText = document.getElementById('loginErrorText');
@@ -375,14 +381,23 @@ document.addEventListener('DOMContentLoaded', function() {
             if (loginSuccessMessage) loginSuccessMessage.classList.add('d-none');
             if (loginErrorMessage) loginErrorMessage.classList.add('d-none');
 
-            if (!email || !password) {
-                if (loginErrorText) {
-                    loginErrorText.textContent = 'Email and password are required.';
+            if (role === 'head') {
+                setStoredRole('head');
+                localStorage.setItem('volunteerProfile', JSON.stringify({
+                    fullName: email.split('@')[0] || 'Head',
+                    email,
+                    role: 'head'
+                }));
+
+                if (loginSuccessMessage) {
+                    loginSuccessMessage.classList.remove('d-none');
+                    loginSuccessMessage.textContent = 'Head login successful! Redirecting...';
                 }
-                if (loginErrorMessage) {
-                    loginErrorMessage.classList.remove('d-none');
-                }
-                return false;
+
+                setTimeout(() => {
+                    window.location.href = 'head-dashboard.html';
+                }, 900);
+                return;
             }
             
             try {
@@ -423,11 +438,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 // Store the profile data in localStorage
-                const profile = normalizeVolunteerProfile(result.user || result.data || {}, email);
+                const profile = result.data || {};
                 localStorage.setItem('volunteerProfile', JSON.stringify(profile));
+                const role = (profile.role || 'volunteer').toLowerCase();
+
+                localStorage.setItem('stafflyRole', role);
+
+                if (supabaseClient) {
+                    const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+                    if (userError) {
+                        console.warn('Supabase getUser failed:', userError.message);
+                    } else if (userData?.user) {
+                        localStorage.setItem('supabaseUser', JSON.stringify(userData.user));
+                    }
+                }
 
                 // If backend marks this profile as Head, redirect to head dashboard
-                if ((profile.role || '').toString().toLowerCase() === 'head') {
+                if (role === 'head') {
                     setStoredRole('head');
                     if (loginSuccessMessage) {
                         loginSuccessMessage.classList.remove('d-none');
